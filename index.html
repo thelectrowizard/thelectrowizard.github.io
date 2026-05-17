@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="5; url=https://thelectrowizard.github.io/arcade">
+    <title>Redirecting...</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #767676;
+            --link-color: #000000;
+            --link-hover: #767676;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: 320px;
+            margin: 0 0 24px 0;
+        }
+
+        a {
+            color: var(--link-color);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--link-hover);
+        }
+
+        /* Minimalist loading line */
+        .progress-bar {
+            width: 40px;
+            height: 2px;
+            background-color: #eaeaea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background-color: var(--text-primary);
+            animation: load 5s linear forwards;
+        }
+
+        @keyframes load {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Loading</h1>
+    <p>Moving to the homepage. If nothing happens, <a href="https://thelectrowizard.github.io/arcade">click here</a>.</p>
+    <div class="progress-bar"></div>
+</body>
+</html>

@@ -59,7 +59,7 @@
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 500;
             letter-spacing: -0.02em;
             margin-bottom: 8px;
@@ -68,7 +68,7 @@
         p {
             font-size: 0.9rem;
             color: var(--text-secondary);
-            line-height: 1.5;
+            line-height: 1.6;
             max-width: 320px;
             margin: 0 0 24px 0;
         }
@@ -125,8 +125,11 @@
 <body>
 
     <div class="page-transition" id="animated-content">
-        <h1>Loading</h1>
-        <p>Moving to the homepage. If nothing happens, <a href="https://thelectrowizard.github.io/arcade" class="nav-link">click here</a>.</p>
+        <h1>Welcome to the Arcade</h1>
+        <p>
+            Version: 1.0.0<br>
+            GitHub Stars: <span id="star-count">Loading...</span>
+        </p>
         <div class="progress-bar"></div>
     </div>
 
@@ -136,6 +139,23 @@
 
     <script>
         const destination = "https://thelectrowizard.github.io/arcade";
+
+        // Fetch actual GitHub stars automatically
+        async function fetchGitHubStars() {
+            try {
+                const response = await fetch('https://api.github.com/repos/thelectrowizard/arcade');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('star-count').textContent = data.stargazers_count;
+                } else {
+                    document.getElementById('star-count').textContent = 'N/A';
+                }
+            } catch (error) {
+                document.getElementById('star-count').textContent = 'N/A';
+            }
+        }
+        
+        fetchGitHubStars();
 
         function leavePage(target) {
             document.getElementById('animated-content').classList.add('fade-out');
@@ -148,14 +168,6 @@
         setTimeout(() => {
             leavePage(destination);
         }, 1200);
-
-        // Intercept user clicking manually
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                leavePage(destination);
-            });
-        });
     </script>
 </body>
 </html>

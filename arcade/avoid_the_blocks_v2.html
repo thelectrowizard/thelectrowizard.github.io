@@ -1,0 +1,1017 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <script src="global-nav.js" defer></script>
+							 <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuit Echo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: #FFFFFF;
+            color: #000000;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            margin: 20px auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #000000;
+        }
+        
+        canvas {
+            background-color: #FFFFFF;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #titleScreen, #endScreen, #circuitScreen, #collisionScreen, #difficultyScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: #FFFFFF;
+            z-index: 10;
+            padding: 20px;
+            transition: opacity 0.3s;
+        }
+        
+        #collisionScreen {
+            display: none;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        #difficultyScreen {
+            display: none;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        #circuitScreen {
+            display: none;
+        }
+        
+        #endScreen {
+            display: none;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background-color: #000000;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            width: 250px;
+            border: 2px solid #000000;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .btn:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        #scoreDisplay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.5rem;
+            z-index: 5;
+            font-weight: bold;
+        }
+        
+        #lapDisplay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            z-index: 5;
+            font-weight: bold;
+        }
+        
+        #levelDisplay {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            font-size: 1.2rem;
+            z-index: 5;
+            font-weight: bold;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .track-theme {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            max-width: 600px;
+            margin: 20px 0;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .highlight {
+            color: #000000;
+            font-weight: bold;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 5;
+        }
+        
+        #controls div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .control-key {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        #gameContainer {
+            position: relative;
+        }
+        
+        .game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .game-ui > * {
+            pointer-events: auto;
+        }
+        
+        .circuit-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+        
+        .circuit-item {
+            background-color: #000000;
+            color: #FFFFFF;
+            padding: 20px;
+            border: 2px solid #000000;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .circuit-item:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+            transform: scale(1.05);
+        }
+        
+        .circuit-name {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .circuit-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        #backBtn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 11;
+        }
+        
+        #backBtn:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+        
+        #collisionPopup {
+            background-color: #000000;
+            color: #FFFFFF;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            z-index: 20;
+        }
+        
+        #collisionPopup h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        #collisionPopup p {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .collision-btn {
+            background-color: #FFFFFF;
+            color: #000000;
+            border: 2px solid #000000;
+            padding: 12px 20px;
+            margin: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        
+        .collision-btn:hover {
+            background-color: #000000;
+            color: #FFFFFF;
+        }
+        
+        #difficultyControls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 500px;
+        }
+        
+        .difficulty-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .difficulty-label {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 5px;
+        }
+        
+        #highScoreDisplay {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        #difficultyValue {
+            font-weight: bold;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="titleScreen">
+            <h1>CIRCUIT ECHO</h1>
+            <div class="track-theme">Retro Minimalist Racing</div>
+            <p class="instructions">Navigate through endless tracks or complete 10 themed circuits. Avoid the black rectangles!</p>
+            <button id="startBtn" class="btn pulse">ENDLESS MODE</button>
+            <button id="levelBtn" class="btn">CIRCUITS</button>
+            <div id="highScoreDisplay">High Score: <span id="highScoreValue">0</span></div>
+            <div class="instructions">
+                <p>Controls: <span class="highlight">Arrow Keys</span> or <span class="highlight">WASD</span></p>
+                <p>Tip: Precision driving beats raw speed!</p>
+            </div>
+        </div>
+        
+        <div id="circuitScreen">
+            <h1>SELECT CIRCUIT</h1>
+            <div class="circuit-grid" id="circuitGrid">
+                <!-- Circuits will be generated here -->
+            </div>
+            <button id="backToMenuBtn" class="btn">BACK TO MENU</button>
+        </div>
+        
+        <div id="difficultyScreen">
+            <h1>DIFFICULTY</h1>
+            <div id="difficultyControls">
+                <div>
+                    <h2>Speed & Obstacles</h2>
+                    <input type="range" min="1" max="5" value="3" class="difficulty-slider" id="difficultySlider">
+                    <div class="difficulty-label">
+                        <span>Easy</span>
+                        <span id="difficultyValue">Medium</span>
+                        <span>Hard</span>
+                    </div>
+                </div>
+                <button id="startCircuitBtn" class="btn">START CIRCUIT</button>
+            </div>
+        </div>
+        
+        <div id="endScreen">
+            <h1>GAME OVER</h1>
+            <h2 id="finalScore">Score: 0</h2>
+            <p class="instructions">You've lost connection to the circuit</p>
+            <button id="retryBtn" class="btn">TRY AGAIN</button>
+            <button id="menuBtn" class="btn">MAIN MENU</button>
+        </div>
+        
+        <div id="collisionScreen">
+            <div id="collisionPopup">
+                <h2>COLLISION!</h2>
+                <p>You hit an obstacle</p>
+                <button id="restartBtn" class="collision-btn">RESTART</button>
+                <button id="menuFromCollisionBtn" class="collision-btn">MAIN MENU</button>
+                <button id="endlessFromCollisionBtn" class="collision-btn">ENDLESS MODE</button>
+            </div>
+        </div>
+        
+        <div class="game-ui">
+            <div id="scoreDisplay">Score: 0</div>
+            <div id="lapDisplay">Lap: 0/3</div>
+            <div id="levelDisplay">Level: 0/10</div>
+            
+            <div id="controls">
+                <div>
+                    <div class="control-key">W</div>
+                    <div>UP</div>
+                </div>
+                <div>
+                    <div class="control-key">A</div>
+                    <div>LEFT</div>
+                </div>
+                <div>
+                    <div class="control-key">S</div>
+                    <div>DOWN</div>
+                </div>
+                <div>
+                    <div class="control-key">D</div>
+                    <div>RIGHT</div>
+                </div>
+            </div>
+        </div>
+        
+        <button id="backBtn" class="hidden">BACK</button>
+    </div>
+
+    <script>
+        // Game variables
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const titleScreen = document.getElementById('titleScreen');
+        const endScreen = document.getElementById('endScreen');
+        const circuitScreen = document.getElementById('circuitScreen');
+        const collisionScreen = document.getElementById('collisionScreen');
+        const difficultyScreen = document.getElementById('difficultyScreen');
+        const startBtn = document.getElementById('startBtn');
+        const levelBtn = document.getElementById('levelBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const menuBtn = document.getElementById('menuBtn');
+        const backToMenuBtn = document.getElementById('backToMenuBtn');
+        const backBtn = document.getElementById('backBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const lapDisplay = document.getElementById('lapDisplay');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const finalScore = document.getElementById('finalScore');
+        const circuitGrid = document.getElementById('circuitGrid');
+        const restartBtn = document.getElementById('restartBtn');
+        const menuFromCollisionBtn = document.getElementById('menuFromCollisionBtn');
+        const endlessFromCollisionBtn = document.getElementById('endlessFromCollisionBtn');
+        const difficultySlider = document.getElementById('difficultySlider');
+        const startCircuitBtn = document.getElementById('startCircuitBtn');
+        const difficultyValue = document.getElementById('difficultyValue');
+        const highScoreValue = document.getElementById('highScoreValue');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Game state
+        let gameState = 'title'; // 'title', 'playing', 'end', 'circuit', 'collision', 'difficulty'
+        let gameMode = 'endless'; // 'endless', 'level'
+        let score = 0;
+        let highScore = 0;
+        let lap = 0;
+        let level = 0;
+        let trackLength = 0;
+        let playerX = canvas.width / 2;
+        let playerY = canvas.height - 100; // Car stays at bottom
+        let playerAngle = 0;
+        let playerSpeed = 0;
+        let maxSpeed = 8;
+        let acceleration = 0.2;
+        let deceleration = 0.1;
+        let steering = 0.05;
+        let trackOffset = 0;
+        let trackSegments = [];
+        let opponentCars = [];
+        let keys = {};
+        let animationId;
+        let currentCircuit = 0;
+        let difficulty = 3; // 1-5 scale
+        
+        // Track themes
+        const trackThemes = [
+            { name: "Neon Grid", color: "#000000", desc: "Sharp angles and high speed" },
+            { name: "Industrial Pipe", color: "#000000", desc: "Narrow passages and mechanical obstacles" },
+            { name: "Alpine Path", color: "#000000", desc: "Winding curves and steep ascents" },
+            { name: "Ancient Ruin", color: "#000000", desc: "Irregular segments and precise maneuvering" },
+            { name: "Desert Canyon", color: "#000000", desc: "Wide straights and sudden turns" },
+            { name: "Urban Maze", color: "#000000", desc: "Complex junctions and tight corners" },
+            { name: "Mountain Ridge", color: "#000000", desc: "Elevated paths and sweeping curves" },
+            { name: "Cave System", color: "#000000", desc: "Narrow tunnels and dark passages" },
+            { name: "Forest Trail", color: "#000000", desc: "Natural obstacles and winding paths" },
+            { name: "Cosmic Loop", color: "#000000", desc: "Abstract geometry and surreal curves" }
+        ];
+        
+        // Load high score
+        function loadHighScore() {
+            const savedScore = localStorage.getItem('circuitEchoHighScore');
+            if (savedScore) {
+                highScore = parseInt(savedScore);
+                highScoreValue.textContent = highScore;
+            }
+        }
+        
+        // Save high score
+        function saveHighScore() {
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('circuitEchoHighScore', highScore);
+                highScoreValue.textContent = highScore;
+            }
+        }
+        
+        // Initialize game
+        function initGame() {
+            score = 0;
+            lap = 0;
+            playerX = canvas.width / 2;
+            playerY = canvas.height - 100;
+            playerAngle = 0;
+            playerSpeed = 0;
+            trackOffset = 0;
+            trackSegments = [];
+            opponentCars = [];
+            
+            // Apply difficulty settings
+            const speedFactor = 1 + (difficulty - 1) * 0.5;
+            maxSpeed = 8 * speedFactor;
+            acceleration = 0.2 * speedFactor;
+            deceleration = 0.1 * speedFactor;
+            
+            // Generate initial track
+            generateTrack();
+            
+            // Generate opponents based on difficulty
+            const numOpponents = 10 + (difficulty * 5);
+            generateOpponents(numOpponents);
+            
+            updateScore();
+        }
+        
+        // Generate track segments
+        function generateTrack() {
+            trackSegments = [];
+            trackLength = 2000; // Much longer track for endless mode
+            
+            // Create a curved track
+            for (let i = 0; i < trackLength; i++) {
+                // Create a curved path
+                const curve = Math.sin(i * 0.02 + trackOffset * 0.001) * 50;
+                const x = canvas.width / 2 + curve;
+                const y = i * 10;
+                
+                // Add track segment
+                trackSegments.push({
+                    x: x,
+                    y: y,
+                    width: 100,
+                    height: 10
+                });
+            }
+        }
+        
+        // Generate opponent cars
+        function generateOpponents(numOpponents) {
+            opponentCars = [];
+            
+            for (let i = 0; i < numOpponents; i++) {
+                opponentCars.push({
+                    x: Math.random() * (canvas.width - 50) + 25,
+                    y: Math.random() * -1000,
+                    width: 30,
+                    height: 60,
+                    speed: Math.random() * 3 + 1 + (difficulty * 0.5)
+                });
+            }
+        }
+        
+        // Update score display
+        function updateScore() {
+            scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
+            lapDisplay.textContent = `Lap: ${lap}/3`;
+            levelDisplay.textContent = `Level: ${level}/10`;
+        }
+        
+        // Draw the player car
+        function drawPlayer() {
+            ctx.save();
+            ctx.translate(playerX, playerY);
+            ctx.rotate(playerAngle);
+            
+            // Car body (black outline)
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, -20);
+            ctx.lineTo(15, 10);
+            ctx.lineTo(-15, 10);
+            ctx.closePath();
+            ctx.stroke();
+            
+            // Car details
+            ctx.beginPath();
+            ctx.moveTo(-10, -5);
+            ctx.lineTo(10, -5);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        // Draw opponent cars
+        function drawOpponents() {
+            opponentCars.forEach(car => {
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(car.x, car.y, car.width, car.height);
+                
+                // Add some detail to opponents
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(car.x, car.y, car.width, car.height);
+                
+                // Windows
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(car.x + 5, car.y + 5, car.width - 10, 10);
+            });
+        }
+        
+        // Draw track
+        function drawTrack() {
+            // Draw track surface
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw track segments
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            
+            trackSegments.forEach((segment, index) => {
+                // Calculate position relative to player
+                const segmentY = segment.y - trackOffset;
+                
+                // Only draw segments that are visible
+                if (segmentY > -50 && segmentY < canvas.height + 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(segment.x - segment.width/2, segmentY);
+                    ctx.lineTo(segment.x + segment.width/2, segmentY);
+                    ctx.stroke();
+                    
+                    // Draw lane markers
+                    if (index % 5 === 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(segment.x - segment.width/2 + 10, segmentY);
+                        ctx.lineTo(segment.x + segment.width/2 - 10, segmentY);
+                        ctx.stroke();
+                    }
+                }
+            });
+        }
+        
+        // Draw game
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw track
+            drawTrack();
+            
+            // Draw opponents
+            drawOpponents();
+            
+            // Draw player
+            drawPlayer();
+        }
+        
+        // Update game state
+        function update() {
+            // Handle input
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) {
+                playerSpeed = Math.min(playerSpeed + acceleration, maxSpeed);
+            } else if (keys['ArrowDown'] || keys['s'] || keys['S']) {
+                playerSpeed = Math.max(playerSpeed - acceleration, -maxSpeed/2);
+            } else {
+                // Apply deceleration
+                if (playerSpeed > 0) {
+                    playerSpeed = Math.max(playerSpeed - deceleration, 0);
+                } else if (playerSpeed < 0) {
+                    playerSpeed = Math.min(playerSpeed + deceleration, 0);
+                }
+            }
+            
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+                playerAngle -= steering * (playerSpeed / maxSpeed);
+                playerX = Math.max(50, playerX - 5);
+            }
+            
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+                playerAngle += steering * (playerSpeed / maxSpeed);
+                playerX = Math.min(canvas.width - 50, playerX + 5);
+            }
+            
+            // Update track offset for scrolling effect
+            trackOffset += playerSpeed;
+            
+            // Update opponents
+            opponentCars.forEach(car => {
+                car.y += playerSpeed - car.speed;
+                
+                // Reset opponent when it goes off screen
+                if (car.y > canvas.height + 100) {
+                    car.y = -100;
+                    car.x = Math.random() * (canvas.width - 50) + 25;
+                }
+            });
+            
+            // Update score
+            score += playerSpeed * 0.1;
+            
+            // Check collisions
+            checkCollisions();
+            
+            // Update display
+            updateScore();
+        }
+        
+        // Check for collisions
+        function checkCollisions() {
+            const playerRect = {
+                x: playerX - 15,
+                y: playerY - 20,
+                width: 30,
+                height: 40
+            };
+            
+            for (let i = 0; i < opponentCars.length; i++) {
+                const car = opponentCars[i];
+                const carRect = {
+                    x: car.x,
+                    y: car.y,
+                    width: car.width,
+                    height: car.height
+                };
+                
+                if (rectCollision(playerRect, carRect)) {
+                    // Collision detected
+                    playerSpeed = 0;
+                    gameState = 'collision';
+                    collisionScreen.style.display = 'flex';
+                    saveHighScore();
+                    return;
+                }
+            }
+        }
+        
+        // Rectangle collision detection
+        function rectCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (gameState === 'playing') {
+                update();
+                draw();
+                animationId = requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // Start game
+        function startGame() {
+            gameState = 'playing';
+            titleScreen.classList.add('hidden');
+            initGame();
+            gameLoop();
+        }
+        
+        // Start level mode
+        function startLevel() {
+            gameMode = 'level';
+            gameState = 'difficulty';
+            titleScreen.classList.add('hidden');
+            difficultyScreen.classList.remove('hidden');
+        }
+        
+        // Start specific circuit
+        function startCircuit() {
+            difficultyScreen.classList.add('hidden');
+            currentCircuit = 0;
+            level = 1;
+            gameMode = 'level';
+            gameState = 'playing';
+            initGame();
+            gameLoop();
+        }
+        
+        // Generate circuit selection menu
+        function generateCircuitMenu() {
+            circuitGrid.innerHTML = '';
+            trackThemes.forEach((theme, index) => {
+                const circuitItem = document.createElement('div');
+                circuitItem.className = 'circuit-item';
+                circuitItem.innerHTML = `
+                    <div class="circuit-name">${theme.name}</div>
+                    <div class="circuit-desc">${theme.desc}</div>
+                `;
+                circuitItem.addEventListener('click', () => {
+                    currentCircuit = index;
+                    level = index + 1;
+                    startCircuit();
+                });
+                circuitGrid.appendChild(circuitItem);
+            });
+        }
+        
+        // End game
+        function endGame() {
+            gameState = 'end';
+            cancelAnimationFrame(animationId);
+            finalScore.textContent = `Score: ${Math.floor(score)}`;
+            endScreen.style.display = 'flex';
+            saveHighScore();
+        }
+        
+        // Update difficulty display
+        function updateDifficultyDisplay() {
+            const value = difficultySlider.value;
+            difficulty = parseInt(value);
+            
+            switch(value) {
+                case '1':
+                    difficultyValue.textContent = 'Easy';
+                    break;
+                case '2':
+                    difficultyValue.textContent = 'Medium';
+                    break;
+                case '3':
+                    difficultyValue.textContent = 'Hard';
+                    break;
+                case '4':
+                    difficultyValue.textContent = 'Very Hard';
+                    break;
+                case '5':
+                    difficultyValue.textContent = 'Insane';
+                    break;
+            }
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        levelBtn.addEventListener('click', startLevel);
+        retryBtn.addEventListener('click', startGame);
+        menuBtn.addEventListener('click', () => {
+            endScreen.style.display = 'none';
+            titleScreen.classList.remove('hidden');
+            gameState = 'title';
+        });
+        backToMenuBtn.addEventListener('click', () => {
+            circuitScreen.classList.add('hidden');
+            titleScreen.classList.remove('hidden');
+            gameState = 'title';
+        });
+        
+        // Collision event listeners
+        restartBtn.addEventListener('click', () => {
+            collisionScreen.style.display = 'none';
+            initGame();
+            gameState = 'playing';
+            gameLoop();
+        });
+        
+        menuFromCollisionBtn.addEventListener('click', () => {
+            collisionScreen.style.display = 'none';
+            titleScreen.classList.remove('hidden');
+            gameState = 'title';
+        });
+        
+        endlessFromCollisionBtn.addEventListener('click', () => {
+            collisionScreen.style.display = 'none';
+            gameMode = 'endless';
+            startGame();
+        });
+        
+        // Difficulty event listeners
+        difficultySlider.addEventListener('input', updateDifficultyDisplay);
+        startCircuitBtn.addEventListener('click', startCircuit);
+        
+        // Keyboard controls
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Touch controls for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (touchStartX === 0 || touchStartY === 0) return;
+            
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            
+            const deltaX = touchX - touchStartX;
+            const deltaY = touchY - touchStartY;
+            
+            // Determine swipe direction
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // Horizontal swipe
+                if (deltaX > 0) {
+                    keys['ArrowRight'] = true;
+                } else {
+                    keys['ArrowLeft'] = true;
+                }
+            } else {
+                // Vertical swipe
+                if (deltaY > 0) {
+                    keys['ArrowDown'] = true;
+                } else {
+                    keys['ArrowUp'] = true;
+                }
+            }
+            
+            touchStartX = touchX;
+            touchStartY = touchY;
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            touchStartX = 0;
+            touchStartY = 0;
+            // Clear all directional keys on lift
+            keys['ArrowLeft'] = false;
+            keys['ArrowRight'] = false;
+            keys['ArrowUp'] = false;
+            keys['ArrowDown'] = false;
+        });
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            loadHighScore();
+            generateCircuitMenu();
+            // Draw initial title screen
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 40px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('CIRCUIT ECHO', canvas.width/2, canvas.height/2 - 50);
+            
+            ctx.font = '20px "Courier New", monospace';
+            ctx.fillText('Retro Minimalist Racing', canvas.width/2, canvas.height/2);
+            
+            ctx.font = '16px "Courier New", monospace';
+            ctx.fillText('Press START to begin', canvas.width/2, canvas.height/2 + 50);
+        });
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

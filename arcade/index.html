@@ -1,0 +1,886 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade</title>
+    <link rel="icon" type="image/svg+xml" href="joystick.svg">
+    <meta property="og:title" content="Arcade">
+    <meta property="og:image" content="https://thelectrowizard.github.io/main.jpeg">
+    <meta property="og:url" content="https://thelectrowizard.github.io/arcade">
+    <meta property="og:type" content="website">
+    <style>
+        :root {
+            /* Color Variables */
+            --bg-color: #FFFFFF;
+            --text-primary: #111111;
+            --text-secondary: #767676;
+            --divider-color: #EAEAEA;
+            --content-divider: #111111;
+            
+            /* Typography Variables */
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --h1-size: 2.5rem;
+            --h2-size: 1.5rem;
+            --body-size: 0.95rem;
+            
+            /* Spacing Variables */
+            --section-gap: 60px;
+            --module-padding: 30px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            line-height: 1.5;
+            padding: 20px;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Transition States */
+        .page-transition {
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-transition.fade-out {
+            animation: fadeUpOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUpOut {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        /* Corner Profile Trigger Style Using SVG */
+        .corner-profile-btn {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s ease;
+        }
+
+        .corner-profile-btn:hover {
+            opacity: 0.7;
+        }
+
+        .corner-profile-btn img {
+            width: 32px;
+            height: 32px;
+            display: block;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 80px auto 40px auto;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: var(--h1-size);
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .page-meta-info {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--section-gap);
+        }
+
+        .star-link-badge {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 8px;
+            transition: color 0.2s ease;
+        }
+
+        .star-link-badge:hover {
+            color: var(--text-primary);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .game-module {
+            margin-bottom: var(--section-gap);
+            padding: var(--module-padding) 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-module:last-child {
+            margin-bottom: 0;
+        }
+
+        .game-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            object-fit: cover;
+            border: 1px solid var(--divider-color);
+        }
+
+        .game-title {
+            font-size: var(--h2-size);
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .game-description {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            max-width: 450px;
+        }
+
+        .content-divider {
+            height: 1px;
+            width: 40px;
+            background-color: var(--divider-color);
+            margin: 16px 0;
+        }
+
+        .action-controls {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Keyboard Verification Field Wrapper */
+        .keyboard-verification-field {
+            font-family: var(--font-family);
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background-color: #FAFAFA;
+            border: 1px dashed var(--text-primary);
+            padding: 12px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+            width: 100%;
+            animation: fadeInDown 0.3s ease forwards;
+        }
+
+        .keyboard-hint {
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        /* Minimalist Buttons */
+        .control-button {
+            display: inline-block;
+            background-color: var(--text-primary);
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 400;
+            padding: 10px 24px;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: background-color 0.2s ease;
+            text-align: center;
+        }
+
+        .control-button:hover {
+            background-color: var(--text-secondary);
+        }
+
+        .control-button.secondary-action {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--text-primary);
+            margin-left: 12px;
+        }
+
+        .control-button.secondary-action:hover {
+            background-color: #FAFAFA;
+            color: var(--text-primary);
+        }
+
+        .control-button:disabled {
+            background-color: #CCCCCC !important;
+            color: #888888 !important;
+            border: none !important;
+            cursor: not-allowed !important;
+        }
+
+        .module-separator {
+            height: 1px;
+            width: 100%;
+            max-width: 200px;
+            background-color: var(--divider-color);
+            margin: 20px auto;
+        }
+
+        /* Footer Attribution */
+        footer {
+            margin-top: auto;
+            padding: 40px 0 20px 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        footer a {
+            color: var(--text-primary);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        footer a:hover {
+            color: var(--text-secondary);
+        }
+
+        /* Fullscreen Overlays */
+        .profile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            z-index: 200;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 40px auto;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 24px;
+        }
+
+        .profile-heading {
+            font-size: 1.3rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+
+        .profile-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .profile-form-group label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: lowercase;
+            letter-spacing: 0.2px;
+        }
+
+        .minimal-input {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--divider-color);
+            font-family: var(--font-family);
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .minimal-input:focus {
+            border-bottom-color: var(--text-primary);
+        }
+
+        .sync-block {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sync-status-msg {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .short-code-display {
+            font-family: monospace;
+            font-size: 1.8rem;
+            font-weight: 500;
+            letter-spacing: 6px;
+            text-align: center;
+            padding: 16px;
+            background: #FAFAFA;
+            border: 1px solid var(--divider-color);
+            color: var(--text-primary);
+        }
+
+        .inline-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+
+        .auth-progress-container {
+            width: 100%;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .progress-bar {
+            width: 40px;
+            height: 2px;
+            background-color: #EAEAEA;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background-color: var(--text-primary);
+            animation: load 1s linear forwards;
+        }
+
+        @keyframes load {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media screen and (max-width: 480px) {
+            :root {
+                --h1-size: 2rem;
+                --h2-size: 1.25rem;
+                --section-gap: 40px;
+                --module-padding: 20px;
+            }
+            
+            body {
+                padding: 16px;
+            }
+            
+            .corner-profile-btn {
+                position: absolute;
+                top: 20px;
+                right: 16px;
+            }
+            
+            .container {
+                margin-top: 60px;
+            }
+            
+            .action-controls, .inline-controls {
+                flex-direction: column;
+                gap: 8px;
+                width: 100%;
+            }
+            
+            .control-button {
+                width: 100%;
+            }
+            
+            .control-button.secondary-action {
+                margin-left: 0;
+            }
+
+            .profile-overlay {
+                padding: 24px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition" id="animated-wrapper">
+
+        <button class="corner-profile-btn" id="profile-toggle-btn" onclick="openProfileOverlay()" aria-label="Account Menu">
+            <img src="account_circle.svg" alt="Profile" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23767676\'><path d=\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\'/></svg>'">
+        </button>
+
+        <div class="container">
+            <h1 class="page-title">Arcade</h1>
+            <div class="page-meta-info">
+                v2.0 &bull; 
+                <a href="https://github.com/thelectrowizard/arcade" target="_blank" rel="noopener" class="star-link-badge" title="Click to star repository">
+                    ★ <span id="repo-stars">Loading...</span> Stars
+                </a>
+            </div>
+            
+            <div class="game-module" id="game1">
+                <img src="avoid_the_blocks.jpg" class="game-image" alt="Avoid the Blocks Gameplay Preview" onerror="this.style.display='none'">
+                <h2 class="game-title">Avoid the Blocks</h2>
+                <div class="content-divider"></div>
+                <p class="game-description">Bugs: Looping Circuit</p>
+                <div class="action-controls">
+                    <a href="avoid_the_blocks-redirect.html" class="control-button transition-trigger">Start Game</a>
+                </div>
+            </div>
+            
+            <div class="module-separator"></div>
+            
+            <div class="game-module" id="game2">
+                <img src="avoid_the_blocks_v2.jpg" class="game-image" alt="Avoid the Blocks V2 Gameplay Preview" onerror="this.style.display='none'">
+                <h2 class="game-title">Avoid the BlocksV2</h2>
+                <div class="content-divider"></div>
+                <p class="game-description">Bugs: Circuits Mode</p>
+                <div class="action-controls">
+                    <a href="avoid_the_blocks_v2-redirect.html" class="control-button transition-trigger">Start Game</a>
+                </div>
+            </div>
+            
+            <div class="module-separator"></div>
+            
+            <div class="game-module" id="game3">
+                <img src="pokegolite.jpg" class="game-image" alt="PokeGoLite Gameplay Preview" onerror="this.style.display='none'">
+                <h2 class="game-title">PokeGoLite</h2>
+                <div class="content-divider"></div>
+                <p class="game-description">Explore environments, encounter pocket creatures, and test your catching skills in an ultra-light minimalist simulator.</p>
+                <div class="action-controls">
+                    <a href="pokegolite-redirect.html" class="control-button transition-trigger">Start Game</a>
+                </div>
+            </div>
+            
+            <div class="module-separator"></div>
+            
+            <div class="game-module" id="game4">
+                <img src="geodash.jpg" class="game-image" alt="GeoDash Gameplay Preview" onerror="this.style.display='none'">
+                <h2 class="game-title">GeoDash</h2>
+                <div class="content-divider"></div>
+                <p class="game-description">Bugs - Spawn Kill</p>
+                <div class="action-controls">
+                    <a href="geodash-redirect.html" class="control-button transition-trigger">Start Game</a>
+                </div>
+            </div>
+            
+            <div class="module-separator"></div>
+            
+            <div class="game-module" id="game5">
+                <img src="microracer.jpg" class="game-image" alt="MicroRacer Gameplay Preview" onerror="this.style.display='none'">
+                <h2 class="game-title">MicroRacer</h2>
+                <div class="content-divider"></div>
+                <p class="game-description">Now Available! A Brand new racing game. Desktop Only. - Bugs: Endless Mode</p>
+                
+                <div class="action-controls" id="microracer-controls-wrapper">
+                    <button onclick="activateKeyboardGate('microracer-redirect.html')" id="desktop-game-btn" class="control-button">Start Game - Desktop Only</button>
+                </div>
+            </div>
+
+            <div class="module-separator"></div>
+            
+            <div class="game-module" id="game6">
+                <img src="blocksmash.jpg" class="game-image" alt="BlockSmasher Gameplay Preview" onerror="this.style.display='none'">
+                <h2 class="game-title">BlockSmasher</h2>
+                <div class="content-divider"></div>
+                <p class="game-description">An advanced minimalist matrix puzzle. Drag custom geometry into space and execute perfect line clears.</p>
+                <div class="action-controls">
+                    <a href="blocksmash-redirect.html" class="control-button transition-trigger">Start Game</a>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+        </footer>
+    </div>
+
+    <div class="profile-overlay hidden" id="profile-overlay-panel">
+        <div class="profile-container">
+            
+            <div class="profile-header">
+                <h2 class="profile-heading" id="panel-headline">Account Identity</h2>
+                <button onclick="closeProfileOverlay()" class="control-button secondary-action" style="margin:0; padding: 4px 12px; font-size: 0.8rem; width: auto;">Close</button>
+            </div>
+            
+            <div id="global-auth-loader" class="auth-progress-container hidden">
+                <div class="progress-bar"></div>
+            </div>
+
+            <div class="content-divider" style="width:100%;"></div>
+
+            <div id="auth-section" class="hidden">
+                <p class="game-description">Create an account or login with your username or token code sequence.</p>
+                <div class="profile-form-group">
+                    <label for="auth-username">Username</label>
+                    <input type="text" id="auth-username" class="minimal-input" placeholder="username">
+                </div>
+                <div class="profile-form-group">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" class="minimal-input" placeholder="••••••••">
+                </div>
+                <div class="inline-controls" style="margin-top: 24px; width: 100%;">
+                    <button onclick="handleLocalSignUp()" class="control-button" style="flex: 1;">Sign Up</button>
+                    <button onclick="triggerAuthAnimation(handleLocalLogin)" class="control-button secondary-action" style="flex: 1;">Log In</button>
+                </div>
+
+                <div class="content-divider" style="margin-top: 32px; width:100%;"></div>
+                <h3 style="font-size: 1rem; font-weight: 500; text-align: center; margin-bottom: 8px;">Remote Account Login</h3>
+                <button onclick="initiateDeviceLinkReceive()" id="receive-trigger-btn" class="control-button secondary-action" style="margin-left:0; width:100%;">Input Login Token Code</button>
+
+                <div id="sync-receiver-ui" class="sync-block hidden">
+                    <div class="profile-form-group">
+                        <label for="sync-code-input">Enter 6-Character Token Code</label>
+                        <input type="text" id="sync-code-input" class="minimal-input" style="text-align: center; font-family: monospace; letter-spacing: 4px; font-size: 1.5rem;" maxlength="6" placeholder="------" oninput="handleIncomingShortCode()">
+                    </div>
+                    <div class="inline-controls">
+                        <button onclick="abortSyncSubsystem()" class="control-button secondary-action" style="margin:0; width: 100%;">Cancel Token Input</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboard-section" class="hidden">
+                <p class="game-description" id="user-welcome-msg">Welcome back</p>
+                
+                <div id="highscores-container" style="text-align: left; margin: 20px 0; font-size: 0.9rem;">
+                    <h4 style="margin-bottom: 8px; border-bottom: 1px solid var(--divider-color); padding-bottom: 4px;">Your Game Milestones</h4>
+                    <ul id="highscores-list" style="list-style: none; color: var(--text-secondary);">
+                        <li>No scores recorded yet.</li>
+                    </ul>
+                </div>
+
+                <h3 style="font-size: 1rem; font-weight: 500; margin-top: 32px; letter-spacing: -0.01em;">Generate Remote Login Token</h3>
+                <p class="game-description" style="font-size: 0.85rem; margin-bottom: 16px;">Generates a dynamic 6-digit credential code to easily sync or access this active session from separate windows or setups.</p>
+                
+                <div class="inline-controls" id="device-sync-triggers">
+                    <button onclick="initiateDeviceLinkSend()" class="control-button" style="width:100%;">Generate Login Code</button>
+                </div>
+
+                <div id="sync-sender-ui" class="sync-block hidden">
+                    <div class="profile-form-group">
+                        <label>Your 6-Character Login Token Code</label>
+                        <div id="sync-short-code" class="short-code-display">------</div>
+                    </div>
+                    <p class="game-description" style="font-size: 0.85rem;">Input this code string into the remote token panel input box to carry over this account setup instantly.</p>
+                    <div class="inline-controls">
+                        <button onclick="abortSyncSubsystem()" class="control-button secondary-action" style="margin:0; width:100%;">Cancel Token</button>
+                    </div>
+                </div>
+
+                <div id="subsystem-status" class="sync-status-msg" style="margin-top: 20px; font-style: italic;"></div>
+
+                <div class="content-divider" style="margin-top: 40px; width: 100%;"></div>
+                <button onclick="handleLogOut()" class="control-button" style="background-color: #FF3B30; color: #FFF; width:100%;">Log Out</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- MASTER BYPASS FLAG FOR DESKTOP GAMES ON MOBILE ---
+        // Change to true to allow desktop-only games to run on mobile layouts while testing or editing.
+        const FORCE_ALLOW_DESKTOP_GAMES_ON_MOBILE = false;
+
+        // Fetch active GitHub Star parameters natively
+        async function loadRepositoryStars() {
+            try {
+                const res = await fetch('https://api.github.com/repos/thelectrowizard/arcade');
+                if (res.ok) {
+                    const repoInfo = await res.json();
+                    document.getElementById('repo-stars').textContent = repoInfo.stargazers_count;
+                } else {
+                    document.getElementById('repo-stars').textContent = '—';
+                }
+            } catch (err) {
+                document.getElementById('repo-stars').textContent = '—';
+            }
+        }
+        loadRepositoryStars();
+
+        // --- MOBILE HARDWARE CHECK SYSTEM FOR DESKTOP ONLY GAMES ---
+        function applyDeviceRestrictions() {
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const desktopGameButton = document.getElementById('desktop-game-btn');
+            
+            if (desktopGameButton) {
+                if (isMobileDevice && !FORCE_ALLOW_DESKTOP_GAMES_ON_MOBILE) {
+                    desktopGameButton.removeAttribute('onclick');
+                    desktopGameButton.setAttribute('disabled', 'true');
+                    desktopGameButton.innerText = "Desktop Required";
+                } else {
+                    desktopGameButton.setAttribute('onclick', "activateKeyboardGate('microracer-redirect.html')");
+                    desktopGameButton.removeAttribute('disabled');
+                    desktopGameButton.innerText = "Start Game - Desktop Only";
+                }
+            }
+        }
+        // Run check on initialization
+        applyDeviceRestrictions();
+
+        // --- KEYBOARD VERIFICATION GATEWAY FOR LAUNCHING DESKTOP GAMES ---
+        let targetLaunchUrl = "";
+        
+        function activateKeyboardGate(url) {
+            targetLaunchUrl = url;
+            const wrapper = document.getElementById('microracer-controls-wrapper');
+            
+            // Build and swap button into the custom confirmation keyboard layout block
+            wrapper.innerHTML = `
+                <div class="keyboard-verification-field" id="keyboard-gate-field">
+                    <span class="keyboard-hint">press any key to launch - Keyboard Required</span>
+                    <button onclick="cancelKeyboardGate()" class="control-button secondary-action" style="margin: 0; padding: 4px 14px; font-size: 0.8rem; width: auto;">Cancel</button>
+                </div>
+            `;
+            
+            // Listen for any direct hardware keystroke input fields globally
+            window.addEventListener('keydown', executeKeyboardLaunch);
+        }
+
+        function executeKeyboardLaunch(e) {
+            // Prevent execution loops if they hit modifiers or escape cancels
+            if(e.key === "Escape") return cancelKeyboardGate();
+            
+            // Clean global keyboard intercept signals before clean tracking departures
+            window.removeEventListener('keydown', executeKeyboardLaunch);
+            
+            document.getElementById('animated-wrapper').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = targetLaunchUrl;
+            }, 380);
+        }
+
+        function cancelKeyboardGate() {
+            window.removeEventListener('keydown', executeKeyboardLaunch);
+            const wrapper = document.getElementById('microracer-controls-wrapper');
+            
+            // Re-render standard controller parameters natively back safely
+            wrapper.innerHTML = `
+                <button onclick="activateKeyboardGate('microracer-redirect.html')" id="desktop-game-btn" class="control-button">Start Game - Desktop Only</button>
+            `;
+            applyDeviceRestrictions();
+        }
+
+        // --- HIGH SCORE POSTMESSAGE IMPORT SYSTEM ---
+        window.addEventListener("message", function(event) {
+            if (event.data && event.data.type === "SAVE_HIGH_SCORE") {
+                const gameName = event.data.game;
+                const gameScore = event.data.score;
+                
+                let activeSession = localStorage.getItem('userLogin');
+                if (activeSession) {
+                    let userData = JSON.parse(activeSession);
+                    if (!userData.highscores) userData.highscores = {};
+                    
+                    if (!userData.highscores[gameName] || gameScore > userData.highscores[gameName]) {
+                        userData.highscores[gameName] = gameScore;
+                        localStorage.setItem('userLogin', JSON.stringify(userData));
+                        updateHighscoresDisplay(userData);
+                    }
+                }
+            }
+        });
+
+        function updateHighscoresDisplay(userData) {
+            const listEl = document.getElementById('highscores-list');
+            if (!listEl) return;
+            
+            if (userData && userData.highscores && Object.keys(userData.highscores).length > 0) {
+                listEl.innerHTML = "";
+                for (const [game, score] of Object.entries(userData.highscores)) {
+                    const li = document.createElement('li');
+                    li.style.marginBottom = "4px";
+                    li.innerHTML = `<strong>${game}:</strong> ${score} pts`;
+                    listEl.appendChild(li);
+                }
+            } else {
+                listEl.innerHTML = "<li>No scores recorded yet.</li>";
+            }
+        }
+
+        // --- INTERCEPT ROUTING FOR GRADUAL LEAVE ANIMATION ---
+        document.querySelectorAll('.transition-trigger').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetUrl = this.getAttribute('href');
+                if (!targetUrl) return;
+                document.getElementById('animated-wrapper').classList.add('fade-out');
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 380);
+            });
+        });
+
+        // --- AUTH ANIMATION LOADER INTERCEPTOR ---
+        function triggerAuthAnimation(callbackRoutine) {
+            const loader = document.getElementById('global-auth-loader');
+            loader.classList.remove('hidden');
+            
+            const bar = loader.querySelector('.progress-bar');
+            bar.style.animation = 'none';
+            bar.offsetHeight; 
+            bar.style.animation = null;
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                if (callbackRoutine) callbackRoutine();
+            }, 1000);
+        }
+
+        // --- CORE APPLICATION ROUTINES & INTERFACE SWITCHES ---
+        function openProfileOverlay() {
+            document.getElementById('profile-overlay-panel').classList.remove('hidden');
+            renderPanelRouting();
+        }
+
+        function closeProfileOverlay() {
+            document.getElementById('profile-overlay-panel').classList.add('hidden');
+            abortSyncSubsystem();
+        }
+
+        function renderPanelRouting() {
+            const activeSession = localStorage.getItem('userLogin');
+            if (activeSession) {
+                const userData = JSON.parse(activeSession);
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
+                document.getElementById('user-welcome-msg').innerText = `Logged in as: ${userData.username}`;
+                document.getElementById('panel-headline').innerText = "Dashboard Profile";
+                updateHighscoresDisplay(userData);
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('dashboard-section').classList.add('hidden');
+                document.getElementById('panel-headline').innerText = "Account Identity";
+            }
+        }
+
+        // --- CLEAN INTEGRATED SIGN UP & LOGIN PROCEDURES ---
+        function handleLocalSignUp() {
+            const userBox = document.getElementById('auth-username').value.trim();
+            const passBox = document.getElementById('auth-password').value.trim();
+            if (!userBox || !passBox) return alert("Fields cannot be processed empty.");
+            
+            triggerAuthAnimation(() => {
+                const credentialsMap = { username: userBox, verificationHash: btoa(passBox), highscores: {} };
+                localStorage.setItem('userLogin', JSON.stringify(credentialsMap));
+                renderPanelRouting();
+            });
+        }
+
+        function handleLocalLogin() {
+            const userBox = document.getElementById('auth-username').value.trim();
+            const passBox = document.getElementById('auth-password').value.trim();
+            const memoryDump = localStorage.getItem('userLogin');
+
+            if (!memoryDump) {
+                alert("Account database profile unmapped locally. Sign Up instead.");
+                return;
+            }
+
+            const activeObject = JSON.parse(memoryDump);
+            if (activeObject.username === userBox && activeObject.verificationHash === btoa(passBox)) {
+                renderPanelRouting();
+            } else {
+                alert("Mismatched security identity inputs.");
+            }
+        }
+
+        function handleLogOut() {
+            localStorage.removeItem('userLogin');
+            renderPanelRouting();
+        }
+
+        // --- TOKEN CODES GENERATING AND EXCHANGING SYSTEM ---
+        let currentGeneratedRoomCode = "";
+
+        function abortSyncSubsystem() {
+            document.getElementById('device-sync-triggers').classList.remove('hidden');
+            document.getElementById('sync-sender-ui').classList.add('hidden');
+            document.getElementById('sync-receiver-ui').classList.add('hidden');
+            document.getElementById('receive-trigger-btn').classList.remove('hidden');
+            document.getElementById('sync-short-code').innerText = "------";
+            document.getElementById('sync-code-input').value = "";
+            document.getElementById('subsystem-status').innerText = "";
+            currentGeneratedRoomCode = "";
+        }
+
+        function initiateDeviceLinkSend() {
+            document.getElementById('device-sync-triggers').classList.add('hidden');
+            document.getElementById('sync-sender-ui').classList.remove('hidden');
+            document.getElementById('subsystem-status').innerText = "Generating pathway data token...";
+
+            currentGeneratedRoomCode = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('sync-short-code').innerText = currentGeneratedRoomCode;
+
+            localStorage.setItem(`arcade_token_${currentGeneratedRoomCode}`, localStorage.getItem('userLogin'));
+            document.getElementById('subsystem-status').innerText = "Token active and waiting entry.";
+        }
+
+        function initiateDeviceLinkReceive() {
+            document.getElementById('receive-trigger-btn').classList.add('hidden');
+            document.getElementById('sync-receiver-ui').classList.remove('hidden');
+        }
+
+        function handleIncomingShortCode() {
+            const inputVal = document.getElementById('sync-code-input').value.trim();
+            
+            if (inputVal.length === 6) {
+                const retrievedData = localStorage.getItem(`arcade_token_${inputVal}`);
+                
+                if (retrievedData) {
+                    triggerAuthAnimation(() => {
+                        localStorage.setItem('userLogin', retrievedData);
+                        renderPanelRouting();
+                        abortSyncSubsystem();
+                    });
+                } else {
+                    alert("Invalid or expired account login token code.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>

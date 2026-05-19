@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #767676;
+            --link-color: #000000;
+            --link-hover: #767676;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* Fluid Animation Frame Structural Setup */
+        .page-transition {
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-transition.fade-out {
+            animation: fadeUpOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUpOut {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: 320px;
+            margin: 0 0 24px 0;
+        }
+
+        a {
+            color: var(--link-color);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--link-hover);
+        }
+
+        .progress-bar {
+            width: 40px;
+            height: 2px;
+            background-color: #eaeaea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background-color: var(--text-primary);
+            animation: load 5s linear forwards;
+        }
+
+        @keyframes load {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--text-primary);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition" id="animated-content">
+        <h1>Loading</h1>
+        <p>Moving to the homepage. If nothing happens, <a href="redirect.html" class="nav-link">click here</a>.</p>
+        <div class="progress-bar"></div>
+    </div>
+
+    <footer>
+        Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+    </footer>
+
+    <script>
+        const destination = "https://thelectrowizard.github.io";
+
+        function leavePage(target) {
+            document.getElementById('animated-content').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = target;
+            }, 380);
+        }
+
+        // Automatic script fallback redirection after progress complete
+        setTimeout(() => {
+            leavePage(destination);
+        }, 1200);
+
+        // Intercept user clicking manually
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                leavePage(destination);
+            });
+        });
+    </script>
+</body>
+</html>

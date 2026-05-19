@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BlockSmasher // Multi-Theme Edition</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #767676;
+            --border-color: #eaeaea;
+            --grid-line: #f5f5f5;
+            --block-fill: #111111;
+            --block-preview: rgba(17, 17, 17, 0.08);
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        [data-theme="terminal"] {
+            --bg-color: #050505;
+            --text-primary: #00ff66;
+            --text-secondary: #008833;
+            --border-color: #00ff66;
+            --grid-line: #112211;
+            --block-fill: #00ff66;
+            --block-preview: rgba(0, 255, 102, 0.1);
+            --font-family: "Courier New", Courier, monospace;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --border-color: #333333;
+            --grid-line: #222222;
+            --block-fill: #ffffff;
+            --block-preview: rgba(255, 255, 255, 0.1);
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        [data-theme="party"] {
+            --bg-color: #0c0014;
+            --text-primary: #ff00ff;
+            --text-secondary: #8a2be2;
+            --border-color: #ff00ff;
+            --grid-line: #240038;
+            --block-fill: #ffd700;
+            --block-preview: rgba(255, 0, 255, 0.15);
+            --font-family: sans-serif;
+        }
+
+        [data-theme="beach"] {
+            --bg-color: #e0f7fa;
+            --text-primary: #006064;
+            --text-secondary: #0097a7;
+            --border-color: #00838f;
+            --grid-line: #b2ebf2;
+            --block-fill: #ff7043;
+            --block-preview: rgba(0, 151, 167, 0.15);
+            --font-family: sans-serif;
+        }
+
+        [data-theme="laser"] {
+            --bg-color: #000a12;
+            --text-primary: #00e5ff;
+            --text-secondary: #00838f;
+            --border-color: #00e5ff;
+            --grid-line: #002233;
+            --block-fill: #00e676;
+            --block-preview: rgba(0, 229, 255, 0.15);
+            --font-family: monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            user-select: none;
+            -webkit-user-select: none;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 10;
+            background: var(--bg-color);
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-nav {
+            font-size: 0.8rem;
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            text-transform: lowercase;
+            transition: all 0.2s ease;
+        }
+
+        .back-nav:hover {
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: -0.04em;
+            text-transform: lowercase;
+        }
+
+        .score-board {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        #gameWrapper {
+            position: absolute;
+            top: 60px;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        #canvasContainer {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            aspect-ratio: 1 / 1.4;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: pointer;
+        }
+
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 10;
+            background: var(--bg-color);
+        }
+
+        .instructions {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            overflow-x: auto;
+            max-width: 60%;
+            white-space: nowrap;
+            padding: 4px 0;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-transform: lowercase;
+        }
+
+        .theme-btn.active {
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-color);
+            z-index: 15;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .overlay-message {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            text-transform: lowercase;
+            letter-spacing: -0.01em;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            border: 1px solid var(--text-primary);
+            padding: 12px 28px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            letter-spacing: -0.01em;
+            text-transform: lowercase;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="brand-section">
+            <a href="https://thelectrowizard.github.io/" class="back-nav">← back</a>
+            <h1>blocksmasher // dynamic</h1>
+        </div>
+        <div class="score-board">score: <span id="score">0</span> &nbsp;&middot;&nbsp; best: <span id="highscore">0</span></div>
+    </div>
+
+    <div id="gameWrapper">
+        <div id="canvasContainer">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div id="gameOverOverlay" class="overlay hidden">
+                <div class="overlay-message" id="gameOverMsg">no moves left.</div>
+                <button class="btn" onclick="resetGame()">initialize new matrix</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="instructions">
+            drag pieces into space.<br>
+            complete rows/columns to clear.
+        </div>
+        <div class="theme-selector">
+            <span>theme:</span>
+            <button class="theme-btn active" onclick="setTheme('minimalist', this)">minimalist</button>
+            <button class="theme-btn" onclick="setTheme('terminal', this)">terminal</button>
+            <button class="theme-btn" onclick="setTheme('dark', this)">dark</button>
+            <button class="theme-btn" onclick="setTheme('party', this)">party</button>
+            <button class="theme-btn" onclick="setTheme('beach', this)">beach</button>
+            <button class="theme-btn" onclick="setTheme('laser', this)">laser</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const highscoreEl = document.getElementById('highscore');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const gameOverMsg = document.getElementById('gameOverMsg');
+
+        // State Machine
+        const GRID_SIZE = 8;
+        let grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(0));
+        let score = 0;
+        let highscore = localStorage.getItem('bs_minimalist_highscore') || 0;
+        highscoreEl.textContent = highscore;
+
+        let hand = []; 
+        let selectedPiece = null;
+        let selectedIndex = -1;
+        let dragOffset = { x: 0, y: 0 };
+        let isDragging = false;
+
+        // Display Sizing Formulas
+        let cellW = 0;
+        let gridAreaSize = 0;
+        let inventoryY = 0;
+        let slotW = 0;
+
+        let particles = [];
+
+        // PERFORMANCE FIX: Cached style object to avoid DOM lookups per animation frame loop
+        let cachedColors = {
+            bg: '#ffffff',
+            primary: '#111111',
+            secondary: '#767676',
+            border: '#eaeaea',
+            gridLine: '#f5f5f5',
+            fill: '#111111',
+            preview: 'rgba(17, 17, 17, 0.08)'
+        };
+
+        const SHAPES = [
+            { name: '1x1', matrix: [[1]] },
+            { name: '2x2_square', matrix: [[1,1],[1,1]] },
+            { name: '3x3_square', matrix: [[1,1,1],[1,1,1],[1,1,1]] },
+            { name: '2x1_horizontal', matrix: [[1,1]] },
+            { name: '1x2_vertical', matrix: [[1],[1]] },
+            { name: '3x1_horizontal', matrix: [[1,1,1]] },
+            { name: '1x3_vertical', matrix: [[1],[1],[1]] },
+            { name: '4x1_horizontal', matrix: [[1,1,1,1]] },
+            { name: '1x4_vertical', matrix: [[1],[1],[1],[1]] },
+            { name: '3x2_rectangle', matrix: [[1,1,1],[1,1,1]] },
+            { name: 'L_left', matrix: [[1,0],[1,0],[1,1]] },
+            { name: 'L_right', matrix: [[0,1],[0,1],[1,1]] },
+            { name: 'Corner_2x2', matrix: [[1,1],[1,0]] },
+            { name: 'Z_shape', matrix: [[1,1,0],[0,1,1]] }
+        ];
+
+        function updateCachedColors() {
+            const computed = getComputedStyle(document.documentElement);
+            cachedColors.bg = computed.getPropertyValue('--bg-color').trim();
+            cachedColors.primary = computed.getPropertyValue('--text-primary').trim();
+            cachedColors.secondary = computed.getPropertyValue('--text-secondary').trim();
+            cachedColors.border = computed.getPropertyValue('--border-color').trim();
+            cachedColors.gridLine = computed.getPropertyValue('--grid-line').trim();
+            cachedColors.fill = computed.getPropertyValue('--block-fill').trim();
+            cachedColors.preview = computed.getPropertyValue('--block-preview').trim();
+        }
+
+        function setTheme(themeName, element) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            // Re-read changed DOM values only on active tap selection
+            setTimeout(updateCachedColors, 50); 
+        }
+
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+
+            gridAreaSize = rect.width;
+            cellW = gridAreaSize / GRID_SIZE;
+            inventoryY = gridAreaSize + 24;
+            slotW = rect.width / 3;
+        }
+
+        class Piece {
+            constructor(shapeData) {
+                this.matrix = shapeData.matrix;
+                this.rows = this.matrix.length;
+                this.cols = this.matrix[0].length;
+                this.x = 0; 
+                this.y = 0;
+                this.isPlaced = false;
+            }
+        }
+
+        function generateHand() {
+            hand = [];
+            for (let i = 0; i < 3; i++) {
+                const randShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                hand.push(new Piece(randShape));
+            }
+            updatePieceBasePositions();
+        }
+
+        function updatePieceBasePositions() {
+            for (let i = 0; i < 3; i++) {
+                if (hand[i] && !isDraggingPieceIndex(i)) {
+                    const p = hand[i];
+                    const pW = p.cols * cellW * 0.6;
+                    const pH = p.rows * cellW * 0.6;
+                    p.x = (slotW * i) + (slotW / 2) - (pW / 2);
+                    p.y = inventoryY + 40 - (pH / 2);
+                }
+            }
+        }
+
+        function isDraggingPieceIndex(idx) {
+            return isDragging && selectedIndex === idx;
+        }
+
+        function resetGame() {
+            grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(0));
+            score = 0;
+            scoreEl.textContent = score;
+            generateHand();
+            gameOverOverlay.classList.add('hidden');
+        }
+
+        function spawnBlastParticles(x, y) {
+            const colors = [cachedColors.fill, cachedColors.secondary];
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x + cellW / 2,
+                    y: y + cellW / 2,
+                    size: Math.random() * 5 + 3,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    life: 1,
+                    decay: Math.random() * 0.03 + 0.02,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        }
+
+        function checkMatches() {
+            let rowsToClear = [];
+            let colsToClear = [];
+
+            for (let r = 0; r < GRID_SIZE; r++) {
+                if (grid[r].every(cell => cell === 1)) {
+                    rowsToClear.push(r);
+                }
+            }
+
+            for (let c = 0; c < GRID_SIZE; c++) {
+                let colFull = true;
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    if (grid[r][c] !== 1) {
+                        colFull = false;
+                        break;
+                    }
+                }
+                if (colFull) colsToClear.push(c);
+            }
+
+            let clearsCount = rowsToClear.length + colsToClear.length;
+            if (clearsCount === 0) return;
+
+            rowsToClear.forEach(r => {
+                for (let c = 0; c < GRID_SIZE; c++) spawnBlastParticles(c * cellW, r * cellW);
+            });
+
+            colsToClear.forEach(c => {
+                for (let r = 0; r < GRID_SIZE; r++) spawnBlastParticles(c * cellW, r * cellW);
+            });
+
+            rowsToClear.forEach(r => {
+                for (let c = 0; c < GRID_SIZE; c++) grid[r][c] = 0;
+            });
+            colsToClear.forEach(c => {
+                for (let r = 0; r < GRID_SIZE; r++) grid[r][c] = 0;
+            });
+
+            let pointsGained = (clearsCount * 10) + (clearsCount * 5); 
+            score += pointsGained;
+            scoreEl.textContent = score;
+
+            if (score > highscore) {
+                highscore = score;
+                localStorage.setItem('bs_minimalist_highscore', highscore);
+                highscoreEl.textContent = highscore;
+            }
+        }
+
+        function verifyPossibilitySpace() {
+            const elementsInHand = hand.filter(p => p !== null);
+            if (elementsInHand.length === 0) return true;
+
+            for (let p of elementsInHand) {
+                for (let r = 0; r <= GRID_SIZE - p.rows; r++) {
+                    for (let c = 0; c <= GRID_SIZE - p.cols; c++) {
+                        let canFit = true;
+                        for (let pr = 0; pr < p.rows; pr++) {
+                            for (let pc = 0; pc < p.cols; pc++) {
+                                if (p.matrix[pr][pc] === 1 && grid[r + pr][c + pc] === 1) {
+                                    canFit = false;
+                                    break;
+                                }
+                            }
+                            if (!canFit) break;
+                        }
+                        if (canFit) return true; 
+                    }
+                }
+            }
+            return false; 
+        }
+
+        function checkGameOver() {
+            if (!verifyPossibilitySpace()) {
+                gameOverMsg.innerHTML = `no space left.<br>final compliance score: ${score}`;
+                gameOverOverlay.classList.remove('hidden');
+            }
+        }
+
+        function onStart(e) {
+            const pos = e.touches ? e.touches[0] : e;
+            const rect = canvas.getBoundingClientRect();
+            const x = pos.clientX - rect.left;
+            const y = pos.clientY - rect.top;
+
+            for (let i = 0; i < 3; i++) {
+                if (!hand[i]) continue;
+                const p = hand[i];
+                const pW = p.cols * cellW * 0.6;
+                const pH = p.rows * cellW * 0.6;
+                
+                const scaleW = slotW;
+                const hitLeft = (scaleW * i) + (scaleW / 2) - (pW / 2);
+                const hitTop = inventoryY + 40 - (pH / 2);
+
+                if (x >= hitLeft && x <= hitLeft + pW && y >= hitTop && y <= hitTop + pH) {
+                    selectedPiece = p;
+                    selectedIndex = i;
+                    isDragging = true;
+
+                    p.x = x - (p.cols * cellW) / 2;
+                    p.y = y - (p.rows * cellW) / 2;
+                    dragOffset.x = (p.cols * cellW) / 2;
+                    dragOffset.y = (p.rows * cellW) / 2;
+                    break;
+                }
+            }
+        }
+
+        function onMove(e) {
+            if (!isDragging || !selectedPiece) return;
+            if (e.cancelable) e.preventDefault();
+
+            const pos = e.touches ? e.touches[0] : e;
+            const rect = canvas.getBoundingClientRect();
+            const x = pos.clientX - rect.left;
+            const y = pos.clientY - rect.top;
+
+            selectedPiece.x = x - dragOffset.x;
+            selectedPiece.y = y - dragOffset.y;
+        }
+
+        function onEnd(e) {
+            if (!isDragging || !selectedPiece) return;
+            isDragging = false;
+
+            const targetRow = Math.round(selectedPiece.y / cellW);
+            const targetCol = Math.round(selectedPiece.x / cellW);
+
+            let placementSuccessful = false;
+
+            if (targetRow >= 0 && targetRow <= GRID_SIZE - selectedPiece.rows &&
+                targetCol >= 0 && targetCol <= GRID_SIZE - selectedPiece.cols) {
+                
+                let collisionDetected = false;
+                for (let r = 0; r < selectedPiece.rows; r++) {
+                    for (let c = 0; c < selectedPiece.cols; c++) {
+                        if (selectedPiece.matrix[r][c] === 1 && grid[targetRow + r][targetCol + c] === 1) {
+                            collisionDetected = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!collisionDetected) {
+                    for (let r = 0; r < selectedPiece.rows; r++) {
+                        for (let c = 0; c < selectedPiece.cols; c++) {
+                            if (selectedPiece.matrix[r][c] === 1) {
+                                grid[targetRow + r][targetCol + c] = 1;
+                            }
+                        }
+                    }
+                    
+                    score += (selectedPiece.rows * selectedPiece.cols);
+                    scoreEl.textContent = score;
+
+                    hand[selectedIndex] = null;
+                    placementSuccessful = true;
+                    
+                    checkMatches();
+
+                    if (hand.every(p => p === null)) {
+                        generateHand();
+                    }
+
+                    checkGameOver();
+                }
+            }
+
+            if (!placementSuccessful) {
+                updatePieceBasePositions();
+            }
+
+            selectedPiece = null;
+            selectedIndex = -1;
+        }
+
+        function draw() {
+            // PERFORMANCE FIX: Rendering completely relies on fast local variables instead of computing DOM CSS rules inside loop frames
+            ctx.fillStyle = cachedColors.bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (grid[r][c] === 1) {
+                        ctx.fillStyle = cachedColors.fill;
+                        ctx.fillRect(c * cellW, r * cellW, cellW, cellW);
+                    }
+                    
+                    ctx.strokeStyle = cachedColors.gridLine;
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(c * cellW, r * cellW, cellW, cellW);
+                }
+            }
+
+            if (isDragging && selectedPiece) {
+                const targetRow = Math.round(selectedPiece.y / cellW);
+                const targetCol = Math.round(selectedPiece.x / cellW);
+
+                if (targetRow >= 0 && targetRow <= GRID_SIZE - selectedPiece.rows &&
+                    targetCol >= 0 && targetCol <= GRID_SIZE - selectedPiece.cols) {
+                    
+                    ctx.fillStyle = cachedColors.preview;
+                    for (let r = 0; r < selectedPiece.rows; r++) {
+                        for (let c = 0; c < selectedPiece.cols; c++) {
+                            if (selectedPiece.matrix[r][c] === 1) {
+                                ctx.fillRect((targetCol + c) * cellW, (targetRow + r) * cellW, cellW, cellW);
+                            }
+                        }
+                    }
+                }
+            }
+
+            ctx.strokeStyle = cachedColors.border;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, gridAreaSize);
+            ctx.lineTo(gridAreaSize, gridAreaSize);
+            ctx.stroke();
+
+            for (let i = 0; i < 3; i++) {
+                if (!hand[i]) continue;
+                const p = hand[i];
+                const factor = isDraggingPieceIndex(i) ? 1.0 : 0.6; 
+                const renderingCellW = cellW * factor;
+
+                ctx.fillStyle = cachedColors.fill;
+                for (let r = 0; r < p.rows; r++) {
+                    for (let c = 0; c < p.cols; c++) {
+                        if (p.matrix[r][c] === 1) {
+                            ctx.fillRect(p.x + (c * renderingCellW), p.y + (r * renderingCellW), renderingCellW, renderingCellW);
+                        }
+                    }
+                }
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= p.decay;
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+                    ctx.restore();
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', () => { resize(); updatePieceBasePositions(); });
+        
+        canvas.addEventListener('mousedown', onStart);
+        canvas.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onEnd);
+
+        canvas.addEventListener('touchstart', onStart, { passive: false });
+        canvas.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onEnd);
+
+        resize();
+        updateCachedColors();
+        resetGame();
+        draw();
+    </script>
+</body>
+</html>

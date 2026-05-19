@@ -1,0 +1,795 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <script src="global-nav.js" defer></script>
+							<script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Roller Coaster Racing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: white;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid #eee;
+        }
+        
+        #game-canvas {
+            background-color: white;
+            display: block;
+        }
+        
+        #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: black;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        #speed {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: black;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        #start-screen, #game-over, #level-select {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            color: black;
+            z-index: 20;
+            text-align: center;
+        }
+        
+        #game-over {
+            display: none;
+        }
+        
+        #level-select {
+            display: none;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        h2 {
+            font-size: 36px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            background: black;
+            color: white;
+            border: 2px solid black;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 0;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            margin: 10px;
+            width: 200px;
+        }
+        
+        .btn:hover {
+            background: white;
+            color: black;
+        }
+        
+        #final-score {
+            font-size: 28px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        
+        .instructions {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 0;
+            margin: 20px 0;
+            max-width: 80%;
+        }
+        
+        .key {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 0;
+            margin: 0 5px;
+            font-weight: 600;
+        }
+        
+        .level-btn {
+            background: #f0f0f0;
+            color: black;
+            border: 1px solid black;
+            padding: 15px 25px;
+            font-size: 20px;
+            font-weight: 600;
+            border-radius: 0;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            margin: 10px;
+            width: 250px;
+        }
+        
+        .level-btn:hover {
+            background: black;
+            color: white;
+        }
+        
+        .level-btn.active {
+            background: black;
+            color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .level-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 80%;
+            margin-top: 20px;
+        }
+        
+        .level-icon {
+            width: 100px;
+            height: 100px;
+            border: 2px solid black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        .level-name {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        #difficulty-slider {
+            width: 80%;
+            margin: 20px 0;
+        }
+        
+        #difficulty-value {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        
+        #touch-controls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            z-index: 15;
+        }
+        
+        .control-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            user-select: none;
+            pointer-events: auto;
+        }
+        
+        #left-btn {
+            margin-left: 20px;
+        }
+        
+        #right-btn {
+            margin-right: 20px;
+        }
+        
+        .difficulty-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .slider-label {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        #back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 25;
+        }
+        
+        #back-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="back-btn">BACK</div>
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+        <div id="ui-overlay">
+            <div id="score">Score: 0</div>
+            <div id="speed">Speed: 0 km/h</div>
+        </div>
+        <div id="start-screen">
+            <h1>2D ROLLER COASTER RACER</h1>
+            <div class="instructions">
+                <p>Control your car to navigate the track and avoid obstacles!</p>
+                <p>Use <span class="key">←</span> and <span class="key">→</span> arrow keys or touch controls to move</p>
+            </div>
+            <div class="difficulty-container">
+                <div class="slider-label">Difficulty Level</div>
+                <input type="range" id="difficulty-slider" min="1" max="5" value="3">
+                <div id="difficulty-value">Medium</div>
+            </div>
+            <button id="start-btn" class="btn">START RACE</button>
+            <button id="level-select-btn" class="btn">SELECT LEVEL</button>
+        </div>
+        <div id="level-select">
+            <h1>SELECT LEVEL</h1>
+            <div class="level-container">
+                <div class="level-btn active" data-level="1">
+                    <div class="level-icon">1</div>
+                    <div class="level-name">Rolling Hills</div>
+                </div>
+                <div class="level-btn" data-level="2">
+                    <div class="level-icon">2</div>
+                    <div class="level-name">Looping Circuit</div>
+                </div>
+                <div class="level-btn" data-level="4">
+                    <div class="level-icon">4</div>
+                    <div class="level-name">Reversed Track</div>
+                </div>
+            </div>
+            <button id="back-btn-level" class="btn">BACK</button>
+        </div>
+        <div id="game-over">
+            <h2>GAME OVER</h2>
+            <div id="final-score">Score: 0</div>
+            <div id="difficulty-result">Difficulty: Medium</div>
+            <div id="distance-result">Distance: 0m</div>
+            <div id="track-result">Track: Rolling Hills</div>
+            <button id="restart-btn" class="btn">PLAY AGAIN</button>
+            <button id="menu-btn" class="btn">MAIN MENU</button>
+        </div>
+        <div id="touch-controls">
+            <div id="left-btn" class="control-btn">←</div>
+            <div id="right-btn" class="control-btn">→</div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over');
+        const levelSelectScreen = document.getElementById('level-select');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const menuBtn = document.getElementById('menu-btn');
+        const levelSelectBtn = document.getElementById('level-select-btn');
+        const backBtn = document.getElementById('back-btn');
+        const backBtnLevel = document.getElementById('back-btn-level');
+        const scoreElement = document.getElementById('score');
+        const speedElement = document.getElementById('speed');
+        const finalScoreElement = document.getElementById('final-score');
+        const difficultySlider = document.getElementById('difficulty-slider');
+        const difficultyValue = document.getElementById('difficulty-value');
+        const difficultyResult = document.getElementById('difficulty-result');
+        const distanceResult = document.getElementById('distance-result');
+        const trackResult = document.getElementById('track-result');
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
+        const levelBtns = document.querySelectorAll('.level-btn');
+        
+        let gameRunning = false;
+        let score = 0;
+        let speed = 0;
+        let playerX = 370;
+        let playerY = 100; // Player near the top
+        let currentLevel = 1;
+        let obstacles = [];
+        let keys = {};
+        let roadOffset = 0;
+        let animationId;
+        let playerRotation = 0;
+        let playerSpeed = 0;
+        let cameraOffset = 0;
+        let gameTimer = 0;
+        let roadCurve = 0;
+        let curveDirection = 1;
+        let difficulty = 3;
+        let distance = 0;
+        let obstacleSpacing = 100;
+        let trackName = "Rolling Hills";
+        
+        // Update difficulty display
+        difficultySlider.addEventListener('input', () => {
+            difficulty = parseInt(difficultySlider.value);
+            switch(difficulty) {
+                case 1: difficultyValue.textContent = "Easy"; break;
+                case 2: difficultyValue.textContent = "Medium"; break;
+                case 3: difficultyValue.textContent = "Hard"; break;
+                case 4: difficultyValue.textContent = "Expert"; break;
+                case 5: difficultyValue.textContent = "Nightmare"; break;
+            }
+        });
+        
+        // Touch controls
+        leftBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowLeft'] = true;
+        });
+        
+        leftBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowLeft'] = false;
+        });
+        
+        rightBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowRight'] = true;
+        });
+        
+        rightBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowRight'] = false;
+        });
+        
+        // Mouse controls for touch
+        leftBtn.addEventListener('mousedown', () => {
+            keys['ArrowLeft'] = true;
+        });
+        
+        leftBtn.addEventListener('mouseup', () => {
+            keys['ArrowLeft'] = false;
+        });
+        
+        leftBtn.addEventListener('mouseleave', () => {
+            keys['ArrowLeft'] = false;
+        });
+        
+        rightBtn.addEventListener('mousedown', () => {
+            keys['ArrowRight'] = true;
+        });
+        
+        rightBtn.addEventListener('mouseup', () => {
+            keys['ArrowRight'] = false;
+        });
+        
+        rightBtn.addEventListener('mouseleave', () => {
+            keys['ArrowRight'] = false;
+        });
+        
+        // Back button functionality
+        backBtn.addEventListener('click', () => {
+            gameOverScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+        });
+        
+        backBtnLevel.addEventListener('click', () => {
+            levelSelectScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+        });
+        
+        // Initialize game
+        function initGame() {
+            gameRunning = true;
+            score = 0;
+            speed = 0;
+            playerX = 370;
+            playerY = currentLevel === 4 ? 100 : 500; // Player at top only for reversed mode
+            obstacles = [];
+            roadOffset = 0;
+            playerRotation = 0;
+            playerSpeed = 0;
+            cameraOffset = 0;
+            gameTimer = 0;
+            roadCurve = 0;
+            curveDirection = 1;
+            distance = 0;
+            
+            // Set track name based on level
+            switch(currentLevel) {
+                case 1: trackName = "Rolling Hills"; break;
+                case 2: trackName = "Looping Circuit"; break;
+                case 4: trackName = "Reversed Track"; break;
+            }
+            
+            updateUI();
+            gameLoop();
+        }
+        
+        // Update UI elements
+        function updateUI() {
+            scoreElement.textContent = `Score: ${score}`;
+            speedElement.textContent = `Speed: ${Math.floor(speed)} km/h`;
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw road
+            drawRoad();
+            
+            // Draw player car
+            drawPlayerCar();
+            
+            // Draw obstacles
+            drawObstacles();
+            
+            // Update game state
+            updateGame();
+            
+            // Continue game loop
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Draw road with curved track
+        function drawRoad() {
+            // Draw road surface
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw road markings
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 4;
+            
+            // Draw center stripe as outlined rectangles
+            ctx.fillStyle = '#fff';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            
+            // For reversed track, draw center line at bottom
+            if (currentLevel === 4) {
+                // Draw center line at bottom
+                for (let i = 0; i < 20; i++) {
+                    const y = (i * 50 + roadOffset) % 1000 - 1000; // Start from bottom
+                    if (y > -50 && y < canvas.height + 50) {
+                        ctx.fillRect(390, y, 20, 40);
+                        ctx.strokeRect(390, y, 20, 40);
+                    }
+                }
+            } else {
+                // Draw center line normally
+                for (let i = 0; i < 20; i++) {
+                    const y = (i * 50 + roadOffset) % 1000;
+                    ctx.fillRect(390, y, 20, 40);
+                    ctx.strokeRect(390, y, 20, 40);
+                }
+            }
+            
+            // Draw road edges
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(200, 0);
+            ctx.lineTo(200, canvas.height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(600, 0);
+            ctx.lineTo(600, canvas.height);
+            ctx.stroke();
+        }
+        
+        // Draw player car
+        function drawPlayerCar() {
+            // Draw player car as a single black rectangle with white outline
+            ctx.fillStyle = '#000';
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.fillRect(playerX - 20, playerY - 30, 40, 60);
+            ctx.strokeRect(playerX - 20, playerY - 30, 40, 60);
+        }
+        
+        // Draw obstacles
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                // Draw obstacle as a black rectangle with white outline
+                ctx.fillStyle = '#000';
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.fillRect(obstacle.x - 30, obstacle.y - 40, 60, 80);
+                ctx.strokeRect(obstacle.x - 30, obstacle.y - 40, 60, 80);
+            });
+        }
+        
+        // Update game state
+        function updateGame() {
+            // Update game timer
+            gameTimer++;
+            
+            // Update road offset for scrolling effect
+            // For reversed track, move backwards
+            if (currentLevel === 4) {
+                roadOffset -= speed;
+            } else {
+                roadOffset += speed;
+            }
+            
+            // Move player car
+            if (keys['ArrowLeft'] && playerX > 200) {
+                playerX -= 5;
+                playerRotation = -0.1;
+            } else if (keys['ArrowRight'] && playerX < 600) {
+                playerX += 5;
+                playerRotation = 0.1;
+            } else {
+                playerRotation = 0;
+            }
+            
+            // Apply rotation to player
+            playerX += playerRotation * 5;
+            
+            // Increase speed over time based on difficulty
+            let maxSpeed = 15;
+            switch(difficulty) {
+                case 1: maxSpeed = 10; break; // Easy
+                case 2: maxSpeed = 15; break; // Medium
+                case 3: maxSpeed = 20; break; // Hard
+                case 4: maxSpeed = 25; break; // Expert
+                case 5: maxSpeed = 30; break; // Nightmare
+            }
+            
+            speed = Math.min(speed + 0.02, maxSpeed);
+            score += 1;
+            distance += speed;
+            
+            // Calculate obstacle frequency based on difficulty
+            let obstacleFrequency = 0.005;
+            switch(difficulty) {
+                case 1: obstacleFrequency = 0.002; break; // Easy
+                case 2: obstacleFrequency = 0.005; break; // Medium
+                case 3: obstacleFrequency = 0.01; break;  // Hard
+                case 4: obstacleFrequency = 0.02; break;  // Expert
+                case 5: obstacleFrequency = 0.03; break;  // Nightmare
+            }
+            
+            // Generate obstacles
+            if (Math.random() < obstacleFrequency) {
+                // Create obstacles in a pattern based on track type
+                let obstacle;
+                if (currentLevel === 2) {
+                    // Looping circuit - start from right side (arc from right to center)
+                    obstacle = {
+                        x: 700, // Start from right side
+                        y: -100,
+                        curve: 0, // For looping circuit
+                        angle: 90 // Start at 90 degrees (from right)
+                    };
+                } else if (currentLevel === 4) {
+                    // Reversed track - generate from top
+                    obstacle = {
+                        x: Math.random() * 300 + 200, // Between 200 and 500
+                        y: 700 // Generate from top
+                    };
+                } else {
+                    // Normal tracks - generate from top
+                    obstacle = {
+                        x: Math.random() * 300 + 200, // Between 200 and 500
+                        y: -100 // Generate from top
+                    };
+                }
+                obstacles.push(obstacle);
+            }
+            
+            // Update obstacles with curved movement for Looping Circuit
+            if (currentLevel === 2) {
+                for (let i = 0; i < obstacles.length; i++) {
+                    const obstacle = obstacles[i];
+                    // Make opponents curve from right side to center (90° to 0°)
+                    obstacle.x -= 3; // Move left (decrease x)
+                    obstacle.y += 2; // Move down (increase y)
+                    obstacle.angle -= 1; // Rotate angle from 90° to 0°
+                }
+            }
+            
+            // Update obstacles with reverse movement for Reversed Track
+            if (currentLevel === 4) {
+                for (let i = 0; i < obstacles.length; i++) {
+                    obstacles[i].y -= speed; // Move backwards
+                }
+            }
+            
+            // Update obstacles for normal tracks
+            if (currentLevel !== 2 && currentLevel !== 4) {
+                for (let i = 0; i < obstacles.length; i++) {
+                    obstacles[i].y += speed;
+                }
+            }
+            
+            // Update obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obstacle = obstacles[i];
+                
+                // Remove obstacles that are off screen
+                if (currentLevel === 4) {
+                    // For reversed track, remove when they go above screen
+                    if (obstacle.y < -100) {
+                        obstacles.splice(i, 1);
+                        score += 10;
+                    }
+                } else if (currentLevel === 2) {
+                    // For looping circuit, remove when they go off screen
+                    if (obstacle.y > 1000 || obstacle.x < -100) {
+                        obstacles.splice(i, 1);
+                        score += 10;
+                    }
+                } else {
+                    // For normal tracks, remove when they go below screen
+                    if (obstacle.y > 1000) {
+                        obstacles.splice(i, 1);
+                        score += 10;
+                    }
+                }
+                
+                // Check collision - when cars actually touch
+                if (
+                    playerX - 20 < obstacle.x + 30 &&
+                    playerX + 20 > obstacle.x - 30 &&
+                    playerY - 30 < obstacle.y + 40 &&
+                    playerY + 30 > obstacle.y - 40
+                ) {
+                    gameOver();
+                    return;
+                }
+            }
+            
+            updateUI();
+        }
+        
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            finalScoreElement.textContent = `Score: ${score}`;
+            difficultyResult.textContent = `Difficulty: ${difficultyValue.textContent}`;
+            distanceResult.textContent = `Distance: ${Math.floor(distance)}m`;
+            trackResult.textContent = `Track: ${trackName}`;
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            initGame();
+        });
+        
+        restartBtn.addEventListener('click', () => {
+            gameOverScreen.style.display = 'none';
+            initGame();
+        });
+        
+        menuBtn.addEventListener('click', () => {
+            gameOverScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+        });
+        
+        levelSelectBtn.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            levelSelectScreen.style.display = 'flex';
+        });
+        
+        levelBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                levelBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLevel = parseInt(btn.dataset.level);
+            });
+        });
+        
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Initialize the game
+        drawRoad();
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

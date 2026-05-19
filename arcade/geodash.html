@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dash // Advanced Minimalist</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #767676;
+            --border-color: #eaeaea;
+            --invert-filter: invert(0);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            filter: var(--invert-filter);
+            transition: filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: fadeInPage 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInPage {
+            0% { opacity: 0; transform: translateY(-40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Top Bar Layout */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 10;
+            background: var(--bg-color);
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-nav {
+            font-size: 0.8rem;
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            text-transform: lowercase;
+            transition: all 0.2s ease;
+        }
+
+        .back-nav:hover {
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: -0.04em;
+            margin: 0;
+            text-transform: lowercase;
+        }
+
+        .score-board {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Bottom Bar Layout */
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 10;
+            background: var(--bg-color);
+        }
+
+        .instructions {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Minimalist Square Slider */
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 120px;
+            background: transparent;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: var(--border-color);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            background: var(--text-primary);
+            cursor: pointer;
+            margin-top: -6px;
+            border-radius: 0;
+        }
+
+        input[type="range"]::-moz-range-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: var(--border-color);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            height: 16px;
+            width: 16px;
+            background: var(--text-primary);
+            cursor: pointer;
+            border-radius: 0;
+            border: none;
+        }
+
+        /* Game Canvas Shell */
+        #gameWrapper {
+            position: absolute;
+            top: 60px;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
+            background: var(--bg-color);
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            transition: opacity 0.3s ease;
+            z-index: 5;
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .overlay-message {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            text-transform: lowercase;
+            letter-spacing: -0.01em;
+            display: none;
+            text-align: center;
+        }
+
+        .btn {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 28px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        #tutorialMessage {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+            text-transform: lowercase;
+            text-align: center;
+            z-index: 4;
+            pointer-events: none;
+            background: var(--bg-color);
+            padding: 8px 20px;
+            border: 1px solid var(--border-color);
+            display: none;
+            max-width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="brand-section">
+            <a href="https://thelectrowizard.github.io/" class="back-nav">← back</a>
+            <h1>dash // advanced</h1>
+        </div>
+        <div class="score-board">score: <span id="score">0</span> &nbsp;&middot;&nbsp; best: <span id="highscore">0</span></div>
+    </div>
+
+    <div id="gameWrapper">
+        <div id="tutorialMessage">system initializing...</div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="startOverlay" class="overlay">
+            <div id="endMessage" class="overlay-message"></div>
+            <button id="actionBtn" class="btn" onclick="initGameFlow()">click to initialize</button>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="instructions">
+            tap anywhere or press [space] to jump. <br>
+            ◽ portals invert layout direction &amp; palette &middot; ▵ boosters flip your gravity
+        </div>
+        <div class="slider-wrapper">
+            <label for="speedSlider">speed:</label>
+            <input type="range" id="speedSlider" min="3" max="25" step="0.5" value="6">
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const highscoreEl = document.getElementById('highscore');
+        const startOverlay = document.getElementById('startOverlay');
+        const endMsgEl = document.getElementById('endMessage');
+        const actionBtn = document.getElementById('actionBtn');
+        const tutMsg = document.getElementById('tutorialMessage');
+        const speedSlider = document.getElementById('speedSlider');
+
+        let isPlaying = false;
+        let isTutorialMode = false;
+        let tutorialStep = 0; 
+        let score = 0;
+        let highscore = localStorage.getItem('gd_adv_highscore') || 0;
+        highscoreEl.textContent = highscore;
+
+        let animationFrameId;
+        let spawnTimer = 0;
+        
+        let baseSpeed = parseFloat(speedSlider.value);
+        let currentSpeed = baseSpeed;
+        let direction = 1; 
+
+        let groundY = 0;
+        let ceilingY = 0;
+
+        speedSlider.addEventListener('input', (e) => {
+            baseSpeed = parseFloat(e.target.value);
+            if (!isPlaying || isTutorialMode) {
+                currentSpeed = baseSpeed;
+            }
+        });
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            
+            groundY = Math.round(rect.height * 0.70);
+            ceilingY = Math.round(rect.height * 0.30);
+            
+            const trackHeight = groundY - ceilingY;
+            player.gravityForce = trackHeight * 0.0019;
+            player.jumpForce = -(trackHeight * 0.052); 
+            
+            if (!isPlaying) {
+                player.y = groundY - player.h;
+            }
+        }
+
+        const player = {
+            x: 80,
+            y: 0,
+            w: 24,
+            h: 24,
+            vy: 0,
+            rotation: 0,
+            isGrounded: true,
+            gravityDirection: 1, 
+            gravityForce: 0.5,
+            jumpForce: -11,    
+
+            jump() {
+                if (this.isGrounded) {
+                    this.vy = this.jumpForce * this.gravityDirection;
+                    this.isGrounded = false;
+                }
+            },
+
+            update() {
+                this.vy += this.gravityForce * this.gravityDirection;
+                this.y += this.vy;
+
+                if (this.gravityDirection === 1) {
+                    if (this.y >= groundY - this.h) {
+                        this.y = groundY - this.h;
+                        this.vy = 0;
+                        this.isGrounded = true;
+                        this.rotation = Math.round(this.rotation / 90) * 90;
+                    }
+                } else {
+                    if (this.y <= ceilingY) {
+                        this.y = ceilingY;
+                        this.vy = 0;
+                        this.isGrounded = true;
+                        this.rotation = Math.round(this.rotation / 90) * 90;
+                    }
+                }
+
+                if (!this.isGrounded) {
+                    this.rotation += 4 * direction;
+                }
+            },
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                ctx.fillStyle = '#111111';
+                ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(-this.w / 4, -this.h / 4, this.w / 2, this.h / 2);
+                ctx.restore();
+            }
+        };
+
+        let elements = [];
+
+        class Obstacle {
+            constructor(type, spawnSide = null, customHeight = null) {
+                this.type = type; 
+                this.w = type === 'spike' ? 24 : type === 'portal' ? 20 : 18;
+                this.h = customHeight ? customHeight : (type === 'spike' ? 32 : type === 'portal' ? 64 : 16);
+                this.passed = false;
+
+                const rect = canvas.parentElement.getBoundingClientRect();
+                
+                // Determine placement based on targeted direction or absolute movement layouts
+                let actualSide = spawnSide !== null ? spawnSide : direction;
+                this.x = actualSide === 1 ? rect.width : -this.w;
+                
+                if (type === 'spike' || type === 'booster') {
+                    this.y = player.gravityDirection === 1 ? groundY - this.h : ceilingY;
+                } else if (type === 'portal') {
+                    this.y = (groundY + ceilingY) / 2 - this.h / 2;
+                }
+            }
+
+            update() {
+                this.x -= currentSpeed * direction;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.fillStyle = '#111111';
+
+                if (this.type === 'spike' || this.type === 'booster') {
+                    ctx.beginPath();
+                    // Keep vector rendering relative to the obstacle's track alignment
+                    if (this.y === groundY - this.h) {
+                        ctx.moveTo(this.x, this.y + this.h);
+                        ctx.lineTo(this.x + this.w / 2, this.y);
+                        ctx.lineTo(this.x + this.w, this.y + this.h);
+                    } else {
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(this.x + this.w / 2, this.y + this.h);
+                        ctx.lineTo(this.x + this.w, this.y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                } 
+                else if (this.type === 'portal') {
+                    ctx.strokeStyle = '#111111';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(this.x, this.y, this.w, this.h);
+                    ctx.fillStyle = 'rgba(17,17,17,0.15)';
+                    ctx.fillRect(this.x + 4, this.y + 4, this.w - 8, this.h - 8);
+                }
+                ctx.restore();
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        if (!localStorage.getItem('gd_adv_tutorial_completed')) {
+            actionBtn.textContent = "start demonstration";
+        } else {
+            actionBtn.textContent = "click to play";
+        }
+
+        function initGameFlow() {
+            if (!localStorage.getItem('gd_adv_tutorial_completed')) {
+                isTutorialMode = true;
+                tutorialStep = 1;
+                tutMsg.style.display = "block";
+                tutMsg.textContent = "tutorial: initializing run...";
+            } else {
+                isTutorialMode = false;
+                tutMsg.style.display = "none";
+            }
+            startGame();
+        }
+
+        function startGame() {
+            isPlaying = true;
+            score = 0;
+            currentSpeed = isTutorialMode ? 5 : baseSpeed;
+            direction = 1;
+            elements = [];
+            
+            player.gravityDirection = 1;
+            player.x = 80;
+            player.y = groundY - player.h;
+            player.vy = 0;
+            player.rotation = 0;
+            player.isGrounded = true;
+            
+            scoreEl.textContent = score;
+            document.documentElement.style.setProperty('--invert-filter', 'invert(0)');
+            startOverlay.classList.add('hidden');
+            endMsgEl.style.display = 'none';
+            
+            cancelAnimationFrame(animationFrameId);
+            spawnTimer = isTutorialMode ? 40 : 80;
+            
+            loop();
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            startOverlay.classList.remove('hidden');
+            endMsgEl.style.display = 'block';
+            
+            if (isTutorialMode) {
+                localStorage.setItem('gd_adv_tutorial_completed', 'true');
+                isTutorialMode = false;
+                tutMsg.style.display = "none";
+                endMsgEl.textContent = "tutorial complete. you are now in control.";
+                actionBtn.textContent = "start interactive game";
+            } else {
+                endMsgEl.innerHTML = `final speed: ${currentSpeed.toFixed(1)} <br> score: ${score}`;
+                actionBtn.textContent = "play again";
+            }
+
+            if (score > highscore) {
+                highscore = score;
+                localStorage.setItem('gd_adv_highscore', highscore);
+                highscoreEl.textContent = highscore;
+            }
+        }
+
+        function triggerPortal() {
+            direction *= -1;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            player.x = direction === 1 ? 80 : rect.width - 80 - player.w;
+            
+            const currentFilter = getComputedStyle(document.documentElement).getPropertyValue('--invert-filter').trim();
+            document.documentElement.style.setProperty('--invert-filter', currentFilter === 'invert(1)' ? 'invert(0)' : 'invert(1)');
+        }
+
+        function triggerBooster() {
+            player.gravityDirection *= -1;
+            player.isGrounded = false;
+        }
+
+        function checkCollision(rect, item) {
+            return (
+                rect.x < item.x + item.w &&
+                rect.x + rect.w > item.x &&
+                rect.y < item.y + item.h &&
+                rect.y + rect.h > item.y
+            );
+        }
+
+        function loop() {
+            if (!isPlaying) return;
+
+            const rect = canvas.parentElement.getBoundingClientRect();
+            ctx.clearRect(0, 0, rect.width, rect.height);
+
+            // Rails
+            ctx.strokeStyle = '#eaeaea';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, groundY); ctx.lineTo(rect.width, groundY);
+            ctx.moveTo(0, ceilingY); ctx.lineTo(rect.width, ceilingY);
+            ctx.stroke();
+
+            player.update();
+            player.draw();
+
+            spawnTimer--;
+            if (spawnTimer <= 0) {
+                if (isTutorialMode) {
+                    if (tutorialStep === 1) {
+                        tutMsg.textContent = "tutorial: short spikes upside-down flip your gravity";
+                        elements.push(new Obstacle('booster', direction));
+                        tutorialStep = 2;
+                        spawnTimer = 160; 
+                    } else if (tutorialStep === 2) {
+                        tutMsg.textContent = "tutorial: portals reverse map direction & design color";
+                        elements.push(new Obstacle('portal', direction));
+                        tutorialStep = 3;
+                        spawnTimer = 160;
+                    } else if (tutorialStep === 3) {
+                        tutMsg.textContent = "tutorial: the big spikes will kill you";
+                        elements.push(new Obstacle('spike', direction, 42)); 
+                        spawnTimer = 99999; 
+                    }
+                } else {
+                    const rand = Math.random();
+                    let type = 'spike';
+                    if (rand > 0.85) type = 'portal';
+                    else if (rand > 0.68) type = 'booster';
+
+                    elements.push(new Obstacle(type));
+                    spawnTimer = Math.max(30, Math.floor(Math.random() * (50 - (currentSpeed * 1.5))) + (80 - (currentSpeed * 1.5)));
+                }
+            }
+
+            for (let i = elements.length - 1; i >= 0; i--) {
+                let el = elements[i];
+                el.update();
+                el.draw();
+
+                // AUTOMATED TUTORIAL BOT LOGIC
+                if (isTutorialMode) {
+                    let distance = direction === 1 ? (el.x - player.x) : (player.x - el.x);
+                    if (el.type === 'booster' && distance > 0 && distance < 40 && player.isGrounded) {
+                        player.jump();
+                    }
+                }
+
+                if (checkCollision(player, el)) {
+                    if (el.type === 'spike') {
+                        gameOver();
+                        return;
+                    } else if (el.type === 'portal') {
+                        triggerPortal();
+                        elements.splice(i, 1);
+                        continue;
+                    } else if (el.type === 'booster') {
+                        triggerBooster();
+                        elements.splice(i, 1);
+                        continue;
+                    }
+                }
+
+                const isPassed = direction === 1 ? (el.x + el.w < player.x) : (el.x > player.x + player.w);
+                if (!el.passed && isPassed) {
+                    el.passed = true;
+                    if (!isTutorialMode) {
+                        score++;
+                        scoreEl.textContent = score;
+                        if (currentSpeed < 25) currentSpeed += 0.1;
+                    }
+                }
+
+                const isOffscreen = direction === 1 ? (el.x + el.w < 0) : (el.x > rect.width);
+                if (isOffscreen) {
+                    elements.splice(i, 1);
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(loop);
+        }
+
+        const handleAction = (e) => {
+            if (e.type === 'mousedown' || e.type === 'touchstart') {
+                const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+                if (clientY < 60 || clientY > window.innerHeight - 60) return;
+            }
+
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.type === 'mousedown' || e.type === 'touchstart') {
+                if (isPlaying && !isTutorialMode) { 
+                    player.jump();
+                    if (e.cancelable) e.preventDefault();
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleAction);
+        window.addEventListener('mousedown', handleAction);
+        window.addEventListener('touchstart', handleAction, { passive: false });
+
+    </script>
+</body>
+</html>

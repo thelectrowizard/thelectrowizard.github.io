@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="global-nav.js" defer></script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Micro Racer</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --gray: #767676;
+            --light-gray: #f0f0f0;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        #ui-container {
+            width: 800px;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--text);
+            padding-bottom: 8px;
+        }
+        h1 {
+            font-size: 1.2rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+        }
+        .controls-panel {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        select, button {
+            background: var(--bg);
+            border: 2px solid var(--text);
+            color: var(--text);
+            padding: 6px 12px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+        select:hover, button:hover {
+            background: var(--text);
+            color: var(--bg);
+        }
+        button:disabled {
+            border-color: var(--gray);
+            color: var(--gray);
+            cursor: not-allowed;
+            background: transparent;
+        }
+        #gameCanvas {
+            border: 2px solid var(--text);
+            background: #ffffff;
+            width: 800px;
+            height: 500px;
+            display: block;
+        }
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .instructions {
+            font-size: 0.8rem;
+            color: var(--gray);
+            text-align: center;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="ui-container">
+    <header>
+        <h1>Micro Racer</h1>
+        <div class="controls-panel">
+            <select id="modeSelect">
+                <option value="circuit">Circuit Racing</option>
+                <option value="endless">Moving Endless</option>
+            </select>
+            <select id="themeSelect">
+                <!-- Populated by JS -->
+            </select>
+            <button id="startBtn">Start Race</button>
+        </div>
+    </header>
+
+    <div class="hud">
+        <div id="hudLeft">Track: 1/10</div>
+        <div id="hudRight">Status: Waiting</div>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    
+    <div class="instructions">
+        Use <b>Left / Right Arrow</b> keys to steer. Hold <b>Up Arrow</b> to accelerate. 
+        In Endless mode, navigate between the moving lane walls!
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// UI Elements
+const modeSelect = document.getElementById('modeSelect');
+const themeSelect = document.getElementById('themeSelect');
+const startBtn = document.getElementById('startBtn');
+const hudLeft = document.getElementById('hudLeft');
+const hudRight = document.getElementById('hudRight');
+
+// Themes Config (10 Black and White Variants)
+const THEMES = [
+    { name: "01. Classic Stark", bg: "#ffffff", track: "#f5f5f5", wall: "#000000", car: "#000000" },
+    { name: "02. Stealth Dark", bg: "#111111", track: "#222222", wall: "#ffffff", car: "#ffffff" },
+    { name: "03. High Contrast", bg: "#ffffff", track: "#ffffff", wall: "#000000", car: "#000000", dash: true },
+    { name: "04. Blueprint Grid", bg: "#1a1a1a", track: "#111111", wall: "#555555", car: "#ffffff", grid: true },
+    { name: "05. Chalk Dust", bg: "#2b2b2b", track: "#333333", wall: "#aaaaaa", car: "#ffffff" },
+    { name: "06. Monochromatic Gray", bg: "#dddddd", track: "#ffffff", wall: "#444444", car: "#111111" },
+    { name: "07. Dark Charcoal", bg: "#444444", track: "#222222", wall: "#ffffff", car: "#ffffff" },
+    { name: "08. Newspaper Print", bg: "#fcfbf7", track: "#e0ded9", wall: "#111111", car: "#111111" },
+    { name: "09. Retro Terminal", bg: "#050505", track: "#000000", wall: "#00ff00", car: "#ffffff", neon: true }, // Mono Neon Accent
+    { name: "10. Inverse Silhouette", bg: "#000000", track: "#ffffff", wall: "#000000", car: "#000000" }
+];
+
+// Populate Theme Selector
+THEMES.forEach((theme, idx) => {
+    let opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = theme.name;
+    themeSelect.appendChild(opt);
+});
+
+// Game State Object
+let state = {
+    mode: 'circuit',
+    themeIdx: 0,
+    running: false,
+    keys: {},
+    player: null,
+    opponents: [],
+    endlessTrack: [],
+    endlessOffset: 0,
+    endlessSpeed: 4,
+    score: 0,
+    trackPoints: []
+};
+
+// Key Listeners
+window.addEventListener('keydown', e => state.keys[e.key] = true);
+window.addEventListener('keyup', e => state.keys[e.key] = false);
+
+// Circuit Mode Waypoints (An Oval Track Layout within view)
+function generateCircuitPoints() {
+    const points = [];
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const rx = 320;
+    const ry = 180;
+    for (let i = 0; i < 100; i++) {
+        let angle = (i / 100) * Math.PI * 2;
+        // Introduce slight waving to make the track organic but completely visible
+        let modifier = 1 + Math.sin(angle * 4) * 0.08; 
+        points.push({
+            x: centerX + Math.cos(angle) * rx * modifier,
+            y: centerY + Math.sin(angle) * ry * modifier
+        });
+    }
+    return points;
+}
+
+// Check Distance between 2 points
+function dist(p1, p2) {
+    return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+}
+
+// Reset Game State
+function initGame() {
+    state.mode = modeSelect.value;
+    state.themeIdx = parseInt(themeSelect.value);
+    state.running = true;
+    state.score = 0;
+    
+    // Setup Player Car
+    state.player = {
+        x: 0, y: 0,
+        angle: 0,
+        speed: 0,
+        maxSpeed: 5.5,
+        accel: 0.15,
+        friction: 0.05,
+        steerSpeed: 0.05,
+        currentWaypoint: 0,
+        lap: 0,
+        radius: 8,
+        width: 18,
+        height: 10
+    };
+
+    if (state.mode === 'circuit') {
+        state.trackPoints = generateCircuitPoints();
+        // Place player near first waypoint heading towards second
+        state.player.x = state.trackPoints[0].x;
+        state.player.y = state.trackPoints[0].y;
+        state.player.angle = Math.atan2(state.trackPoints[1].y - state.trackPoints[0].y, state.trackPoints[1].x - state.trackPoints[0].x);
+
+        // Generate 3 AI opponents
+        state.opponents = [];
+        const offsets = [-20, 20, -35];
+        const speeds = [4.8, 5.0, 5.2];
+        for (let i = 0; i < 3; i++) {
+            state.opponents.push({
+                x: state.trackPoints[0].x + offsets[i],
+                y: state.trackPoints[0].y + offsets[i],
+                angle: state.player.angle,
+                speed: 0,
+                maxSpeed: speeds[i],
+                targetWaypoint: 1,
+                laneOffset: offsets[i],
+                radius: 8,
+                width: 18,
+                height: 10,
+                color: '#888888'
+            });
+        }
+        hudLeft.textContent = `Theme: ${THEMES[state.themeIdx].name.split(' ')[1]}`;
+        hudRight.textContent = `Lap 1/3`;
+    } else {
+        // Endless Mode Configuration
+        state.player.x = canvas.width / 4; // Stays locked horizontally on left third
+        state.player.y = canvas.height / 2; // Can turn up/down, but track moves leftward
+        state.endlessTrack = [];
+        state.endlessOffset = 0;
+        state.endlessSpeed = 4.5;
+        
+        // Populate initial shifting walls
+        for (let x = 0; x <= canvas.width + 100; x += 40) {
+            let centerLine = canvas.height / 2 + Math.sin(x * 0.005) * 80;
+            state.endlessTrack.push({ x: x, center: centerLine, width: 140 });
+        }
+        hudLeft.textContent = `Mode: Endless`;
+        hudRight.textContent = `Score: 0`;
+    }
+}
+
+// Main Update Loop
+function update() {
+    if (!state.running) return;
+
+    const p = state.player;
+    const currentTheme = THEMES[state.themeIdx];
+
+    if (state.mode === 'circuit') {
+        // --- CIRCUIT MECHANICS ---
+        // Steer Logic
+        if (state.keys['ArrowLeft']) p.angle -= p.steerSpeed;
+        if (state.keys['ArrowRight']) p.angle += p.steerSpeed;
+
+        // Drive Logic
+        if (state.keys['ArrowUp']) {
+            p.speed = Math.min(p.speed + p.accel, p.maxSpeed);
+        } else {
+            p.speed = Math.max(p.speed - p.friction, 0);
+        }
+
+        p.x += Math.cos(p.angle) * p.speed;
+        p.y += Math.sin(p.angle) * p.speed;
+
+        // Check Track Distance/Boundaries (Rough containment enforcement)
+        let closestDist = Infinity;
+        let closestIdx = 0;
+        for (let i = 0; i < state.trackPoints.length; i++) {
+            let d = dist(p, state.trackPoints[i]);
+            if (d < closestDist) {
+                closestDist = d;
+                closestIdx = i;
+            }
+        }
+
+        // If player drifting too far off track centerline (Track width ~ 70px)
+        if (closestDist > 55) {
+            p.speed *= 0.85; // Slow down drastically on grass
+        }
+
+        // Track Lap Progression via Waypoints
+        let nextWaypoint = (p.currentWaypoint + 1) % state.trackPoints.length;
+        if (dist(p, state.trackPoints[nextWaypoint]) < 40) {
+            p.currentWaypoint = nextWaypoint;
+            if (nextWaypoint === 0) {
+                p.lap++;
+                if (p.lap >= 3) {
+                    state.running = false;
+                    hudRight.textContent = `Race Finished!`;
+                    alert("Race finished! Check your final standings.");
+                } else {
+                    hudRight.textContent = `Lap ${p.lap + 1}/3`;
+                }
+            }
+        }
+
+        // Update AI Opponents
+        state.opponents.forEach(ai => {
+            let target = state.trackPoints[ai.targetWaypoint];
+            // Aim slightly off-center to simulate lanes
+            let targetX = target.x + Math.cos(ai.angle + Math.PI/2) * ai.laneOffset;
+            let targetY = target.y + Math.sin(ai.angle + Math.PI/2) * ai.laneOffset;
+            
+            let targetAngle = Math.atan2(targetY - ai.y, targetX - ai.x);
+            
+            // Interpolate angle cleanly
+            let angleDiff = targetAngle - ai.angle;
+            while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+            while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+            ai.angle += Math.max(-0.06, Math.min(0.06, angleDiff));
+
+            ai.speed = Math.min(ai.speed + 0.1, ai.maxSpeed);
+            ai.x += Math.cos(ai.angle) * ai.speed;
+            ai.y += Math.sin(ai.angle) * ai.speed;
+
+            if (Math.hypot(targetX - ai.x, targetY - ai.y) < 40) {
+                ai.targetWaypoint = (ai.targetWaypoint + 1) % state.trackPoints.length;
+            }
+        });
+
+    } else {
+        // --- ENDLESS MODE MECHANICS ---
+        // Player stays fixed on X-axis. Y moves via controls. Track segments scroll Left.
+        if (state.keys['ArrowLeft'] || state.keys['ArrowUp']) p.y -= 4.0;
+        if (state.keys['ArrowRight'] || state.keys['ArrowDown']) p.y += 4.0;
+
+        // Shift Track Leftward
+        state.endlessOffset -= state.endlessSpeed;
+        state.score += 1;
+        hudRight.textContent = `Score: ${Math.floor(state.score / 10)}`;
+
+        // Increase difficulty gradually
+        state.endlessSpeed = 4.5 + (state.score / 2000);
+
+        // Manage segment stream array
+        state.endlessTrack.forEach(seg => {
+            seg.x -= state.endlessSpeed;
+        });
+
+        if (state.endlessTrack[0].x < -40) {
+            state.endlessTrack.shift();
+            let lastSeg = state.endlessTrack[state.endlessTrack.length - 1];
+            // Create a randomized dynamic twisting corridor
+            let change = (Math.random() - 0.5) * 45;
+            let nextCenter = Math.max(100, Math.min(canvas.height - 100, lastSeg.center + change));
+            let nextWidth = Math.max(90, 140 - (state.score / 1500)); // narrows down over time
+            state.endlessTrack.push({
+                x: lastSeg.x + 40,
+                center: nextCenter,
+                width: nextWidth
+            });
+        }
+
+        // Detect Wall Crashes in Endless Mode
+        // Find track slice overlapping player car X position
+        let currentSeg = state.endlessTrack.find(seg => seg.x >= p.x - 20 && seg.x <= p.x + 20);
+        if (currentSeg) {
+            let topWallY = currentSeg.center - (currentSeg.width / 2);
+            let bottomWallY = currentSeg.center + (currentSeg.width / 2);
+            if (p.y - p.radius <= topWallY || p.y + p.radius >= bottomWallY) {
+                state.running = false;
+                hudRight.textContent = `CRASHED! FINAL: ${Math.floor(state.score/10)}`;
+                alert(`Game Over! Collision detected. Score: ${Math.floor(state.score/10)}`);
+            }
+        }
+    }
+}
+
+// Render Loop
+function draw() {
+    const currentTheme = THEMES[state.themeIdx];
+    
+    // Clear and draw Base Background
+    ctx.fillStyle = currentTheme.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Optional background grid element for blueprint style
+    if (currentTheme.grid) {
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < canvas.width; i += 40) {
+            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+        }
+        for (let j = 0; j < canvas.height; j += 40) {
+            ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+        }
+    }
+
+    if (state.mode === 'circuit') {
+        // --- DRAW CIRCUIT TRACK ---
+        if (state.trackPoints.length > 0) {
+            // Draw Main Road asphalt structure
+            ctx.beginPath();
+            ctx.strokeStyle = currentTheme.track;
+            ctx.lineWidth = 80;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            state.trackPoints.forEach((pt, idx) => {
+                if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.closePath();
+            ctx.stroke();
+
+            // Draw Track Borders
+            ctx.beginPath();
+            ctx.strokeStyle = currentTheme.wall;
+            ctx.lineWidth = 4;
+            if (currentTheme.dash) ctx.setLineDash([10, 10]);
+            else ctx.setLineDash([]);
+            state.trackPoints.forEach((pt, idx) => {
+                if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.closePath();
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset
+
+            // Finish Line indicator
+            ctx.fillStyle = currentTheme.wall;
+            ctx.fillRect(state.trackPoints[0].x - 2, state.trackPoints[0].y - 40, 4, 80);
+        }
+
+        // Draw Opponent Cars
+        state.opponents.forEach(ai => {
+            drawCar(ai.x, ai.y, ai.angle, '#767676', false);
+        });
+
+    } else {
+        // --- DRAW MOVING ENDLESS TRACK ---
+        ctx.fillStyle = currentTheme.track;
+        
+        // Draw track body channel
+        ctx.beginPath();
+        state.endlessTrack.forEach((seg, idx) => {
+            let topY = seg.center - (seg.width / 2);
+            if (idx === 0) ctx.moveTo(seg.x, topY);
+            else ctx.lineTo(seg.x, topY);
+        });
+        for (let i = state.endlessTrack.length - 1; i >= 0; i--) {
+            let botY = state.endlessTrack[i].center + (state.endlessTrack[i].width / 2);
+            ctx.lineTo(state.endlessTrack[i].x, botY);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw upper and lower boundaries lines
+        ctx.strokeStyle = currentTheme.wall;
+        ctx.lineWidth = 4;
+        
+        ctx.beginPath();
+        state.endlessTrack.forEach((seg, idx) => {
+            if (idx === 0) ctx.moveTo(seg.x, seg.center - (seg.width / 2));
+            else ctx.lineTo(seg.x, seg.center - (seg.width / 2));
+        });
+        ctx.stroke();
+
+        ctx.beginPath();
+        state.endlessTrack.forEach((seg, idx) => {
+            if (idx === 0) ctx.moveTo(seg.x, seg.center + (seg.width / 2));
+            else ctx.lineTo(seg.x, seg.center + (seg.width / 2));
+        });
+        ctx.stroke();
+    }
+
+    // Draw Active Player Car
+    if (state.player) {
+        // In endless mode, force angle to head straight forward unless moving
+        let displayAngle = state.player.angle;
+        if (state.mode === 'endless') {
+            displayAngle = 0;
+            if (state.keys['ArrowLeft'] || state.keys['ArrowUp']) displayAngle = -0.15;
+            if (state.keys['ArrowRight'] || state.keys['ArrowDown']) displayAngle = 0.15;
+        }
+        drawCar(state.player.x, state.player.y, displayAngle, currentTheme.car, currentTheme.neon);
+    }
+}
+
+// Render reusable micro vector box car
+function drawCar(x, y, angle, color, neonStyle) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+
+    // Shadow / Neon Glow Effect
+    if (neonStyle) {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#00ff00";
+    }
+
+    // Chassis Box Body
+    ctx.fillStyle = color;
+    ctx.fillRect(-9, -5, 18, 10);
+
+    // Wheels (4 minimalist black dashes)
+    ctx.fillStyle = (color === '#ffffff' || color === '#00ff00') ? '#000000' : '#888888';
+    ctx.fillRect(-7, -7, 4, 2);
+    ctx.fillRect(3, -7, 4, 2);
+    ctx.fillRect(-7, 5, 4, 2);
+    ctx.fillRect(3, 5, 4, 2);
+
+    // Windshield strip directional marker
+    ctx.fillStyle = '#ffffff';
+    if (color === '#ffffff') ctx.fillStyle = '#000000';
+    ctx.fillRect(2, -3, 2, 6);
+
+    ctx.restore();
+    ctx.shadowBlur = 0; // reset
+}
+
+// Core Execution Tick loop
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+// Fire action events
+startBtn.addEventListener('click', () => {
+    initGame();
+});
+
+// Run Initial setup view frame render
+initGame();
+state.running = false; // pause until click
+loop();
+
+</script>
+</body>
+</html>

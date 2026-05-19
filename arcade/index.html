@@ -628,7 +628,7 @@
         // Fetch active GitHub Star parameters natively
         async function loadRepositoryStars() {
             try {
-                const res = await fetch('https://api.github.com/repos/thelectrowizard/arcade');
+                const res = await fetch('https://api.github.com/repos/thelectrowizard/thelectrowizard.github.io');
                 if (res.ok) {
                     const repoInfo = await res.json();
                     document.getElementById('repo-stars').textContent = repoInfo.stargazers_count;

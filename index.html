@@ -144,7 +144,7 @@
         // Fetch actual GitHub stars automatically
         async function fetchGitHubStars() {
             try {
-                const response = await fetch('https://api.github.com/repos/thelectrowizard/arcade');
+                const response = await fetch('https://api.github.com/repos/thelectrowizard/thelectrowizard.github.io');
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('star-count').textContent = data.stargazers_count;

@@ -271,7 +271,7 @@
             
             function generateTrack() {
                 trackSegments = [];
-                trackLength = gameMode === 'endless' ? 2000 : 400; 
+                trackLength = gameMode === 'endless' ? 2000 : 4000; 
                 for (let i = 0; i < trackLength; i++) {
                     const curve = Math.sin(i * 0.02) * 60;
                     trackSegments.push({ x: canvas.width / 2 + curve, y: i * 10, width: 120, height: 10 });

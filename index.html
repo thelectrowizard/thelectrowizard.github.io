@@ -32,9 +32,9 @@
             padding: 20px;
             box-sizing: border-box;
             text-align: center;
+            overflow: hidden; 
         }
 
-        /* Fluid Animation Frame Structural Setup */
         .page-transition {
             opacity: 0;
             transform: translateY(-20px);
@@ -84,15 +84,35 @@
             color: var(--link-hover);
         }
 
+        #captcha-container {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            transition: all 0.3s ease; /* Smooth transition for sizing adjustments */
+        }
+
+        iframe {
+            border: none;
+            display: block; 
+            transition: width 0.3s ease, height 0.3s ease; /* Resizes beautifully */
+        }
+
         .progress-bar {
             width: 40px;
             height: 2px;
             background-color: #eaeaea;
             position: relative;
             overflow: hidden;
+            display: none; 
         }
 
-        .progress-bar::after {
+        .progress-bar.active {
+            display: block;
+        }
+
+        .progress-bar.active::after {
             content: '';
             position: absolute;
             left: 0;
@@ -100,7 +120,6 @@
             height: 100%;
             width: 100%;
             background-color: var(--text-primary);
-            /* CHANGED: Set visual progress bar to exactly 1.2s */
             animation: load 1.2s linear forwards;
         }
 
@@ -121,9 +140,21 @@
             text-decoration: underline;
             text-underline-offset: 3px;
         }
+
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; 
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
+
+    <canvas id="particle-canvas"></canvas>
 
     <div class="page-transition" id="animated-content">
         <h1>Welcome to the Arcade</h1>
@@ -131,7 +162,12 @@
             Version: 2.0.0<br>
             GitHub Stars: <span id="star-count">Loading...</span>
         </p>
-        <div class="progress-bar"></div>
+
+        <div id="captcha-container">
+            <iframe id="captcha-frame" src="https://embed.neal.fun/not-a-robot/1"></iframe>
+        </div>
+
+        <div class="progress-bar" id="loader"></div>
     </div>
 
     <footer>
@@ -140,8 +176,105 @@
 
     <script>
         const destination = "https://thelectrowizard.github.io/arcade";
+        let currentStep = 1;
+// const paths = ["42", "2", "9", "13", "14", "15", "5"];
+        // Custom Size Configuration for Individual CAPTCHA Levels
+        const captchaSizes = {
+            1: { width: "300px", height: "80px" },   // Level 1: Compact sizing wrapper
+            2: { width: "400px", height: "400px" },  // Level 2: Expanded standard grid sizing
+            9: { width: "400px", height: "400px" },
+            13: { width: "400px", height: "400px" },
+            14: { width: "400px", height: "400px" },
+            15: { width: "400px", height: "400px" },
+            5: { width: "400px", height: "400px" },
+            42: { width: "400px", height: "400px" }
+        };
 
-        // Fetch actual GitHub stars automatically
+        const frameElement = document.getElementById('captcha-frame');
+        
+        // Dynamic Resize Deployment Handler
+        function applyCaptchaSize(step) {
+            if (captchaSizes[step]) {
+                frameElement.style.width = captchaSizes[step].width;
+                frameElement.style.height = captchaSizes[step].height;
+            }
+        }
+        
+        // Fire initialization sizing profile instantly
+        applyCaptchaSize(currentStep);
+
+        // Advanced Arcade Engine Particle Architecture Engine Setup
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                // Matches secondary code physics engine tracking configurations
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.size = Math.random() * 4 + 2;
+                this.alpha = 1;
+                // Matches the quick square-decay tracking timeline properties
+                this.decay = Math.random() * 0.02 + 0.015;
+                this.color = color || '#111111';
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.fillStyle = this.color;
+                // Shifted away from rounded arc setups to sharp arcade style grid geometry
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function triggerExplosion() {
+            const container = document.getElementById('captcha-container');
+            const rect = container.getBoundingClientRect();
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+
+            const themeColors = ['#111111', '#767676', '#eaeaea', '#a3a3a3'];
+
+            // Scaled particle population configuration to mimic execution frame bursts
+            for (let i = 0; i < 65; i++) {
+                const selectedColor = themeColors[Math.floor(Math.random() * themeColors.length)];
+                particles.push(new Particle(startX, startY, selectedColor));
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles = particles.filter(p => p.alpha > 0);
+                
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
         async function fetchGitHubStars() {
             try {
                 const response = await fetch('https://api.github.com/repos/thelectrowizard/thelectrowizard.github.io');
@@ -162,13 +295,38 @@
             document.getElementById('animated-content').classList.add('fade-out');
             setTimeout(() => {
                 window.location.href = target;
-            }, 380); // Matches the 0.4s fadeUpOut CSS animation safely
+            }, 380); 
         }
 
-        // CHANGED: Fires right as the progress bar finishes filling up (1200ms)
-        setTimeout(() => {
-            leavePage(destination);
-        }, 1200);
+        function startLoadingSequence() {
+            const loader = document.getElementById('loader');
+            loader.classList.add('active'); 
+
+            setTimeout(() => {
+                leavePage(destination);
+            }, 1200); 
+        }
+
+        // Processing Capture Stream Engine Updates 
+        window.addEventListener("message", (event) => {
+            if (event.data.type === "captcha-completed") {
+
+                if (currentStep === 1) {
+                    currentStep = 2;
+                    
+                    const paths = ["42", "2", "9", "13", "14", "15", "5"];
+                    const randomPath = paths[Math.floor(Math.random() * paths.length)];
+                    
+                    // Modifies frame viewport mapping bounds cleanly prior to loading source targets
+                    applyCaptchaSize(currentStep);
+                    frameElement.src = `https://embed.neal.fun/not-a-robot/${randomPath}`;
+                } else if (currentStep === 2) {
+                    triggerExplosion();
+                    document.getElementById('captcha-container').style.display = 'none';
+                    startLoadingSequence();
+                }
+            }
+        });
     </script>
 </body>
 </html>

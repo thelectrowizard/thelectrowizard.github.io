@@ -5,47 +5,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arcade</title>
-    <link rel="icon" type="image/svg+xml" href="https://thelectrowizard.github.io/arcade/joystick.svg">
+    <link rel="icon" type="image/svg+xml" href="joystick.svg">
     <meta property="og:title" content="Arcade">
     <meta property="og:image" content="https://thelectrowizard.github.io/main.jpeg">
     <meta property="og:url" content="https://thelectrowizard.github.io/arcade">
+    <meta name="description" content="Avoid the Blocks • Avoid the Blocks V2 • Blocksmasher • GeoDash • Microracer • PokeGoLite">
     <meta property="og:type" content="website">
     <style>
         :root {
-            --bg-color: #ffffff;
+            /* Color Variables */
+            --bg-color: #FFFFFF;
             --text-primary: #111111;
             --text-secondary: #767676;
-            --link-color: #000000;
-            --link-hover: #767676;
+            --divider-color: #EAEAEA;
+            --content-divider: #111111;
+            
+            /* Typography Variables */
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --h1-size: 2.5rem;
+            --h2-size: 1.5rem;
+            --body-size: 0.95rem;
+            
+            /* Spacing Variables */
+            --section-gap: 60px;
+            --module-padding: 30px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font-family);
+            line-height: 1.5;
+            padding: 20px;
+            position: relative;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
-            overflow: hidden; 
+            overflow-x: hidden;
         }
 
+        /* --- ENTRY ANIMATION --- */
         .page-transition {
             opacity: 0;
             transform: translateY(-20px);
             animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        .page-transition.fade-out {
-            animation: fadeUpOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes fadeInDown {
@@ -53,135 +67,434 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes fadeUpOut {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-20px); }
+        /* --- STAGE MECHANICS: PERFECT GRID STACKING --- */
+        #stage-core-anchor {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            justify-items: center;
+            align-items: center;
+            width: 100%;
+            margin-top: 40px;
         }
 
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 500;
-            letter-spacing: -0.02em;
-            margin-bottom: 8px;
+        /* Collapses layers together cleanly over exact same screen space coordinate */
+        #stage-core-anchor > * {
+            grid-column: 1;
+            grid-row: 1;
         }
 
-        p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            max-width: 320px;
-            margin: 0 0 24px 0;
-        }
-
-        a {
-            color: var(--link-color);
-            text-decoration: underline;
-            text-underline-offset: 4px;
-            transition: color 0.2s ease;
-        }
-
-        a:hover {
-            color: var(--link-hover);
+        /* --- GATEWAY CAPTCHA MODULE --- */
+        #captcha-gateway {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            z-index: 10;
         }
 
         #captcha-container {
-            margin-bottom: 24px;
+            margin: 24px 0 10px 0;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            transition: all 0.3s ease; /* Smooth transition for sizing adjustments */
         }
 
         iframe {
             border: none;
             display: block; 
-            transition: width 0.3s ease, height 0.3s ease; /* Resizes beautifully */
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), height 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            z-index: 15;
         }
 
-        .progress-bar {
-            width: 40px;
-            height: 2px;
-            background-color: #eaeaea;
-            position: relative;
-            overflow: hidden;
-            display: none; 
-        }
-
-        .progress-bar.active {
-            display: block;
-        }
-
-        .progress-bar.active::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
+        /* --- FAKE IFRAME TRANSITION MECHANICS --- */
+        #dashboard-window-wrapper {
             width: 100%;
-            background-color: var(--text-primary);
-            animation: load 1.2s linear forwards;
+            max-width: 100%;
+            height: 80px; /* Force an explicit initial starting height matching Step 1 */
+            border: 0px solid transparent;
+            background: transparent;
+            padding: 0;
+            overflow: hidden;
+            transform-origin: center center;
+            /* Absolute geometric transition rules */
+            transition: max-width 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        height 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        border-color 0.4s ease, 
+                        box-shadow 0.4s ease,
+                        opacity 0.4s ease;
         }
 
-        @keyframes load {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(0); }
+        /* Gated state: Centered naturally under/behind active iframe track bounds */
+        #dashboard-window-wrapper.iframe-mock {
+            margin-top: 60px; /* Aligns visually center with inner iframe alignment frames */
+            border: 1px solid var(--divider-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            background: #FFFFFF;
+            pointer-events: none; 
+            opacity: 0.15;
+            z-index: 5;
         }
 
-        footer {
-            position: absolute;
-            bottom: 20px;
-            font-size: 0.8rem;
+        /* Expanded State: Fills screen space smoothly */
+        #dashboard-window-wrapper.fullscreen-expand {
+            margin-top: 0px !important;
+            max-width: 100% !important;
+            height: 100% !important; /* Avoid 'auto' to ensure height transitions interpolate perfectly */
+            border-color: transparent !important;
+            box-shadow: none !important;
+            opacity: 1 !important;
+            pointer-events: auto;
+            z-index: 20;
+        }
+
+        /* --- MAIN DASHBOARD INTERFACE CONTENT --- */
+        .corner-profile-btn {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s ease;
+        }
+
+        .corner-profile-btn:hover { opacity: 0.7; }
+        .corner-profile-btn img { width: 32px; height: 32px; display: block; }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 80px auto 40px auto;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: var(--h1-size);
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .page-meta-info {
+            font-size: 0.95rem;
             color: var(--text-secondary);
+            margin-bottom: var(--section-gap);
         }
 
-        footer a {
+        .star-link-badge {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 8px;
+            transition: color 0.2s ease;
+        }
+
+        .star-link-badge:hover {
             color: var(--text-primary);
             text-decoration: underline;
             text-underline-offset: 3px;
         }
 
-        #particle-canvas {
-            position: absolute;
+        .game-module {
+            margin-bottom: var(--section-gap);
+            padding: var(--module-padding) 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            object-fit: cover;
+            border: 1px solid var(--divider-color);
+        }
+
+        .game-title {
+            font-size: var(--h2-size);
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .game-description {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            max-width: 450px;
+        }
+
+        .content-divider {
+            height: 1px;
+            width: 40px;
+            background-color: var(--divider-color);
+            margin: 16px 0;
+        }
+
+        .action-controls {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .keyboard-verification-field {
+            font-family: var(--font-family);
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background-color: #FAFAFA;
+            border: 1px dashed var(--text-primary);
+            padding: 12px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+            width: 100%;
+            animation: fadeInDown 0.3s ease forwards;
+        }
+
+        .control-button {
+            display: inline-block;
+            background-color: var(--text-primary);
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 400;
+            padding: 10px 24px;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: background-color 0.2s ease;
+            text-align: center;
+        }
+
+        .control-button:hover { background-color: var(--text-secondary); }
+
+        .control-button.secondary-action {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--text-primary);
+            margin-left: 12px;
+        }
+
+        .control-button.secondary-action:hover { background-color: #FAFAFA; }
+        .control-button:disabled { background-color: #CCCCCC !important; color: #888888 !important; cursor: not-allowed !important; }
+
+        .module-separator {
+            height: 1px;
+            width: 100%;
+            max-width: 200px;
+            background-color: var(--divider-color);
+            margin: 20px auto;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 40px 0 20px 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            width: 100%;
+        }
+
+        footer a { color: var(--text-primary); text-decoration: underline; text-underline-offset: 3px; }
+
+        /* Fullscreen Profile Overlay Styles */
+        .profile-overlay {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; 
-            z-index: 10;
+            background-color: var(--bg-color);
+            z-index: 200;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .profile-container { width: 100%; max-width: 400px; margin: 40px auto; }
+        .profile-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; }
+        .profile-heading { font-size: 1.3rem; font-weight: 500; letter-spacing: -0.02em; }
+        .auth-progress-container { width: 100%; height: 2px; background-color: var(--divider-color); margin-bottom: 24px; position: relative; overflow: hidden; }
+        .auth-progress-container .progress-bar-inner { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background-color: var(--text-primary); transition: width 0.1s linear; }
+        .profile-form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; text-align: left; }
+        .profile-form-group label { font-size: 0.8rem; color: var(--text-secondary); text-transform: lowercase; }
+        .minimal-input { width: 100%; padding: 10px 0; font-size: 0.95rem; color: var(--text-primary); background: transparent; border: none; border-bottom: 1px solid var(--divider-color); outline: none; }
+        .hidden { display: none !important; }
+
+        @media screen and (max-width: 480px) {
+            :root { --h1-size: 2rem; --h2-size: 1.25rem; --section-gap: 40px; --module-padding: 20px; }
+            .corner-profile-btn { position: absolute; top: 20px; right: 16px; }
+            .container { margin-top: 60px; }
+            .action-controls { flex-direction: column; gap: 8px; }
+            .control-button { width: 100%; }
+            .control-button.secondary-action { margin-left: 0; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="particle-canvas"></canvas>
+    <div class="page-transition" id="animated-wrapper">
 
-    <div class="page-transition" id="animated-content">
-        <h1>Welcome to the Arcade</h1>
-        <p>
-            Version: 2.0.0<br>
-            GitHub Stars: <span id="star-count">Loading...</span>
-        </p>
+        <div id="stage-core-anchor">
 
-        <div id="captcha-container">
-            <iframe id="captcha-frame" src="https://embed.neal.fun/not-a-robot/1"></iframe>
+            <div id="captcha-gateway" class="hidden">
+                <h1 class="page-title">Arcade</h1>
+                <p class="game-description" style="text-align: center;">Please confirm you are a human.</p>
+                <div id="captcha-container">
+                    <iframe id="captcha-frame"></iframe>
+                </div>
+            </div>
+
+            <div id="dashboard-window-wrapper" class="hidden">
+                <div id="dashboard-content" style="width: 100%;">
+                    <button class="corner-profile-btn" id="profile-toggle-btn" onclick="openProfileOverlay()" aria-label="Account Menu">
+                        <img src="account_circle.svg" alt="Profile" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23767676\'><path d=\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\'/></svg>'">
+                    </button>
+
+                    <div class="container">
+                        <h1 class="page-title">Arcade</h1>
+                        <div class="page-meta-info">
+                            v2.0 &bull; 
+                            <a href="https://github.com/thelectrowizard/thelectrowizard.github.io" target="_blank" rel="noopener" class="star-link-badge">
+                                &#9733; <span id="repo-stars">Loading...</span> Star
+                            </a>
+                        </div>
+                        
+                        <div class="game-module" id="game1">
+                            <img src="avoid_the_blocks.jpg" class="game-image" alt="Avoid the Blocks" onerror="this.style.display='none'">
+                            <h2 class="game-title">Avoid the Blocks</h2>
+                            <div class="content-divider"></div>
+                            <p class="game-description"></p>
+                            <div class="action-controls">
+                                <a href="avoid_the_blocks-redirect.html" class="control-button">Start Game</a>
+                            </div>
+                        </div>
+                        
+                        <div class="module-separator"></div>
+                        
+                        <div class="game-module" id="game2">
+                            <img src="avoid_the_blocks_v2.jpg" class="game-image" alt="Avoid the Blocks V2" onerror="this.style.display='none'">
+                            <h2 class="game-title">Avoid the BlocksV2</h2>
+                            <div class="content-divider"></div>
+                            <p class="game-description"></p>
+                            <div class="action-controls" id="v21-controls-wrapper">
+                                <a href="avoid_the_blocks_v2.1-redirect.html" class="control-button">Start V2.1</a>
+                            </div>
+                        </div>
+                        
+                        <div class="module-separator"></div>
+                        
+                        <div class="game-module" id="game3">
+                            <img src="pokegolite.jpg" class="game-image" alt="PokeGoLite" onerror="this.style.display='none'">
+                            <h2 class="game-title">PokeGoLite</h2>
+                            <div class="content-divider"></div>
+                            <p class="game-description">Explore environments, encounter pocket creatures, and test your catching skills in an ultra-light minimalist simulator.</p>
+                            <div class="action-controls">
+                                <a href="pokegolite-redirect.html" class="control-button">Start Game</a>
+                            </div>
+                        </div>
+                        
+                        <div class="module-separator"></div>
+                        
+                        <div class="game-module" id="game4">
+                            <img src="geodash.jpg" class="game-image" alt="GeoDash" onerror="this.style.display='none'">
+                            <h2 class="game-title">GeoDash</h2>
+                            <div class="content-divider"></div>
+                            <p class="game-description"></p>
+                            <div class="action-controls">
+                                <a href="geodash-redirect.html" class="control-button">Start Game</a>
+                            </div>
+                        </div>
+                        
+                        <div class="module-separator"></div>
+                        
+                        <div class="game-module" id="game5">
+                            <img src="microracer.jpg" class="game-image" alt="MicroRacer" onerror="this.style.display='none'">
+                            <h2 class="game-title">MicroRacer</h2>
+                            <div class="content-divider"></div>
+                            <p class="game-description">Now Available! A Brand new racing game. Keyboard Required.</p>
+                            <div class="action-controls" id="microracer-controls-wrapper">
+                                <button onclick="activateKeyboardGate('microracer-redirect.html', 'microracer-controls-wrapper')" id="microracer-game-btn" class="control-button">Start Game - Keyboard Required</button>
+                            </div>
+                        </div>
+
+                        <div class="module-separator"></div>
+                        
+                        <div class="game-module" id="game6">
+                            <img src="blocksmash.jpg" class="game-image" alt="BlockSmasher" onerror="this.style.display='none'">
+                            <h2 class="game-title">BlockSmasher</h2>
+                            <div class="content-divider"></div>
+                            <p class="game-description">An advanced minimalist matrix puzzle. Drag custom geometry into space and execute perfect line clears.</p>
+                            <div class="action-controls">
+                                <a href="blocksmash-redirect.html" class="control-button">Start Game</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="progress-bar" id="loader"></div>
+        <footer>
+            Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+        </footer>
     </div>
 
-    <footer>
-        Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
-    </footer>
+    <div class="profile-overlay hidden" id="profile-overlay-panel">
+        <div class="profile-container">
+            <div class="profile-header">
+                <h2 class="profile-heading">Arcade</h2>
+                <button onclick="closeProfileOverlay()" class="control-button secondary-action" style="margin:0; padding: 4px 12px; font-size: 0.8rem; width: auto;">Close</button>
+            </div>
+            <div class="auth-progress-container"><div id="auth-loading-bar" class="progress-bar-inner"></div></div>
+            <div class="content-divider" style="width:100%;"></div>
+
+            <div id="auth-section" class="hidden">
+                <p class="game-description">Create an account or login with your username or token code sequence.</p>
+                <div class="profile-form-group">
+                    <label for="auth-username">Username</label>
+                    <input type="text" id="auth-username" class="minimal-input" placeholder="username">
+                </div>
+                <div class="profile-form-group">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" class="minimal-input" placeholder="••••••••">
+                </div>
+                <div class="inline-controls" style="margin-top: 24px; width: 100%;">
+                    <button id="signup-btn" onclick="triggerAuthAnimation('signup')" class="control-button" style="flex: 1;">Sign Up</button>
+                    <button id="login-btn" onclick="triggerAuthAnimation('login')" class="control-button secondary-action" style="flex: 1;">Log In</button>
+                </div>
+            </div>
+
+            <div id="dashboard-section" class="hidden">
+                <p class="game-description">Welcome back</p>
+                <button onclick="handleLogOut()" class="control-button" style="background-color: #FF3B30; color: #FFF; width:100%;">Log Out</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const destination = "https://thelectrowizard.github.io/arcade";
         let currentStep = 1;
-// const paths = ["42", "2", "9", "13", "14", "15", "5"];
-        // Custom Size Configuration for Individual CAPTCHA Levels
+        const frameElement = document.getElementById('captcha-frame');
+        const containerElement = document.getElementById('captcha-container');
+        const mainWrapper = document.getElementById('animated-wrapper');
+        const windowWrapper = document.getElementById('dashboard-window-wrapper');
+        
         const captchaSizes = {
-            1: { width: "300px", height: "80px" },   // Level 1: Compact sizing wrapper
-            2: { width: "400px", height: "600px" },  // Level 2: Expanded standard grid sizing
+            1: { width: "300px", height: "80px" },
+            2: { width: "400px", height: "600px" },
             9: { width: "400px", height: "600px" },
             13: { width: "400px", height: "600px" },
             14: { width: "400px", height: "600px" },
@@ -190,143 +503,144 @@
             42: { width: "400px", height: "600px" }
         };
 
-        const frameElement = document.getElementById('captcha-frame');
-        
-        // Dynamic Resize Deployment Handler
-        function applyCaptchaSize(step) {
+        function applySizes(step) {
             if (captchaSizes[step]) {
-                frameElement.style.width = captchaSizes[step].width;
-                frameElement.style.height = captchaSizes[step].height;
-            }
-        }
-        
-        // Fire initialization sizing profile instantly
-        applyCaptchaSize(currentStep);
-
-        // Advanced Arcade Engine Particle Architecture Engine Setup
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                // Matches secondary code physics engine tracking configurations
-                this.vx = (Math.random() - 0.5) * 8;
-                this.vy = (Math.random() - 0.5) * 8;
-                this.size = Math.random() * 4 + 2;
-                this.alpha = 1;
-                // Matches the quick square-decay tracking timeline properties
-                this.decay = Math.random() * 0.02 + 0.015;
-                this.color = color || '#111111';
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.alpha -= this.decay;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = Math.max(0, this.alpha);
-                ctx.fillStyle = this.color;
-                // Shifted away from rounded arc setups to sharp arcade style grid geometry
-                ctx.fillRect(this.x, this.y, this.size, this.size);
-                ctx.restore();
-            }
-        }
-
-        function triggerExplosion() {
-            const container = document.getElementById('captcha-container');
-            const rect = container.getBoundingClientRect();
-            const startX = rect.left + rect.width / 2;
-            const startY = rect.top + rect.height / 2;
-
-            const themeColors = ['#111111', '#767676', '#eaeaea', '#a3a3a3'];
-
-            // Scaled particle population configuration to mimic execution frame bursts
-            for (let i = 0; i < 65; i++) {
-                const selectedColor = themeColors[Math.floor(Math.random() * themeColors.length)];
-                particles.push(new Particle(startX, startY, selectedColor));
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles = particles.filter(p => p.alpha > 0);
+                const targetWidth = captchaSizes[step].width;
+                const targetHeight = captchaSizes[step].height;
                 
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
-
-                if (particles.length > 0) {
-                    requestAnimationFrame(animate);
+                // Scale active captcha frame bounds
+                frameElement.style.width = targetWidth;
+                frameElement.style.height = targetHeight;
+                
+                // Keep the hidden preview container exactly sized straight from the center
+                if (windowWrapper.classList.contains('iframe-mock')) {
+                    windowWrapper.style.maxWidth = targetWidth;
+                    windowWrapper.style.height = targetHeight;
                 }
             }
-            animate();
         }
 
-        async function fetchGitHubStars() {
-            try {
-                const response = await fetch('https://api.github.com/repos/thelectrowizard/thelectrowizard.github.io');
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('star-count').textContent = data.stargazers_count;
-                } else {
-                    document.getElementById('star-count').textContent = 'N/A';
-                }
-            } catch (error) {
-                document.getElementById('star-count').textContent = 'N/A';
+        function evaluateRouteGate() {
+            const path = window.location.pathname;
+            const referrer = document.referrer;
+            const isInternalReferrer = referrer.includes("thelectrowizard.github.io");
+
+            if (path === "/" || path === "" || isInternalReferrer) {
+                document.getElementById('captcha-gateway').classList.add('hidden');
+                windowWrapper.classList.remove('hidden');
+                windowWrapper.classList.remove('iframe-mock');
+                windowWrapper.classList.add('fullscreen-expand');
+                // Clear inline heights to let full document layout settle cleanly
+                windowWrapper.style.height = '';
+                windowWrapper.style.maxWidth = '';
+            } else {
+                windowWrapper.classList.remove('hidden');
+                windowWrapper.classList.add('iframe-mock');
+                document.getElementById('captcha-gateway').classList.remove('hidden');
+                
+                applySizes(currentStep);
+                frameElement.src = "https://embed.neal.fun/not-a-robot/1";
             }
         }
-        
-        fetchGitHubStars();
 
-        function leavePage(target) {
-            document.getElementById('animated-content').classList.add('fade-out');
-            setTimeout(() => {
-                window.location.href = target;
-            }, 380); 
+        function expandDashboardSubsystem() {
+            // Remove the captcha layer
+            document.getElementById('captcha-gateway').classList.add('hidden');
+            
+            // Clear explicit styles so CSS transition configurations can seamlessly execute
+            windowWrapper.style.height = '';
+            windowWrapper.style.maxWidth = '';
+            
+            // Explode layout cleanly right from the visual frame centerpoint
+            windowWrapper.classList.remove('iframe-mock');
+            windowWrapper.classList.add('fullscreen-expand');
         }
 
-        function startLoadingSequence() {
-            const loader = document.getElementById('loader');
-            loader.classList.add('active'); 
-
-            setTimeout(() => {
-                leavePage(destination);
-            }, 1200); 
-        }
-
-        // Processing Capture Stream Engine Updates 
         window.addEventListener("message", (event) => {
             if (event.data.type === "captcha-completed") {
-
                 if (currentStep === 1) {
                     currentStep = 2;
-                    
                     const paths = ["42", "2", "9", "13", "14", "15", "5"];
                     const randomPath = paths[Math.floor(Math.random() * paths.length)];
                     
-                    // Modifies frame viewport mapping bounds cleanly prior to loading source targets
-                    applyCaptchaSize(currentStep);
+                    applySizes(currentStep);
                     frameElement.src = `https://embed.neal.fun/not-a-robot/${randomPath}`;
                 } else if (currentStep === 2) {
-                    triggerExplosion();
-                    document.getElementById('captcha-container').style.display = 'none';
-                    startLoadingSequence();
+                    containerElement.classList.add('hidden');
+                    expandDashboardSubsystem();
                 }
             }
         });
+
+        // --- GITHUB API STUBS ---
+        async function loadRepositoryStars() {
+            try {
+                const res = await fetch('https://api.github.com/repos/thelectrowizard/thelectrowizard.github.io');
+                if (res.ok) {
+                    const repoInfo = await res.json();
+                    document.getElementById('repo-stars').textContent = repoInfo.stargazers_count;
+                } else {
+                    document.getElementById('repo-stars').textContent = '—';
+                }
+            } catch (err) {
+                document.getElementById('repo-stars').textContent = '—';
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            loadRepositoryStars();
+            evaluateRouteGate();
+        });
+
+        // --- KEYBOARD VERIFICATION SUBSYSTEMS ---
+        let targetLaunchUrl = "";
+        let currentActiveWrapperId = "";
+        
+        function activateKeyboardGate(url, wrapperId) {
+            targetLaunchUrl = url;
+            currentActiveWrapperId = wrapperId;
+            const wrapper = document.getElementById(wrapperId);
+            
+            wrapper.innerHTML = `
+                <div class="keyboard-verification-field" id="keyboard-gate-field">
+                    <span>press any key to launch - Keyboard Required</span>
+                    <button onclick="cancelKeyboardGate()" class="control-button secondary-action" style="margin: 0; padding: 4px 14px; font-size: 0.8rem; width: auto;">Cancel</button>
+                </div>
+            `;
+            window.addEventListener('keydown', executeKeyboardLaunch);
+        }
+
+        function executeKeyboardLaunch(e) {
+            if(e.key === "Escape") return cancelKeyboardGate();
+            window.removeEventListener('keydown', executeKeyboardLaunch);
+            window.location.href = targetLaunchUrl;
+        }
+
+        function cancelKeyboardGate() {
+            window.removeEventListener('keydown', executeKeyboardLaunch);
+            const wrapper = document.getElementById(currentActiveWrapperId);
+            if (currentActiveWrapperId === "microracer-controls-wrapper") {
+                wrapper.innerHTML = `<button onclick="activateKeyboardGate('microracer-redirect.html', 'microracer-controls-wrapper')" id="microracer-game-btn" class="control-button">Start Game - Keyboard Required</button>`;
+            }
+        }
+
+        // --- AUTH/OVERLAY PIPELINES ---
+        function triggerAuthAnimation(mode) {
+            const bar = document.getElementById('auth-loading-bar');
+            let progress = 0; bar.style.width = '0%';
+            const interval = setInterval(() => {
+                progress += 15;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    if (mode === 'login') handleLocalLogin();
+                }
+                bar.style.width = `${progress}%`;
+            }, 80);
+        }
+        function openProfileOverlay() { document.getElementById('profile-overlay-panel').classList.remove('hidden'); document.getElementById('auth-section').classList.remove('hidden'); }
+        function closeProfileOverlay() { document.getElementById('profile-overlay-panel').classList.add('hidden'); }
+        function handleLocalLogin() { document.getElementById('auth-section').classList.add('hidden'); document.getElementById('dashboard-section').classList.remove('hidden'); }
+        function handleLogOut() { document.getElementById('dashboard-section').classList.add('hidden'); document.getElementById('auth-section').classList.remove('hidden'); }
     </script>
 </body>
 </html>

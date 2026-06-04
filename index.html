@@ -96,6 +96,8 @@
         iframe {
             border: none;
             display: block; 
+            max-width: 100%;
+            max-height: 70vh; /* Keeps it from expanding past the viewport bounds */
             transition: width 0.3s ease, height 0.3s ease; /* Resizes beautifully */
         }
 
@@ -309,6 +311,7 @@
         }
 
         // Processing Capture Stream Engine Updates 
+        // Processing Capture Stream Engine Updates 
         window.addEventListener("message", (event) => {
             if (event.data.type === "captcha-completed") {
 
@@ -318,8 +321,9 @@
                     const paths = ["42", "43", "33", "9", "13", "14", "15", "5"];
                     const randomPath = paths[Math.floor(Math.random() * paths.length)];
                     
-                    // Modifies frame viewport mapping bounds cleanly prior to loading source targets
-                    applyCaptchaSize(currentStep);
+                    // FIX: Pass the specific randomPath ID to apply the correct size configuration
+                    applyCaptchaSize(randomPath);
+                    
                     frameElement.src = `https://embed.neal.fun/not-a-robot/${randomPath}`;
                 } else if (currentStep === 2) {
                     triggerExplosion();

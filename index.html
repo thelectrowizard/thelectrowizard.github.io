@@ -113,7 +113,7 @@
         #dashboard-window-wrapper {
             width: 100%;
             max-width: 100%;
-            height: 80px; /* Force an explicit initial starting height matching Step 1 */
+            height: 80px; /* Initial starting height matching Step 1 box */
             border: 0px solid transparent;
             background: transparent;
             padding: 0;
@@ -142,7 +142,7 @@
         #dashboard-window-wrapper.fullscreen-expand {
             margin-top: 0px !important;
             max-width: 100% !important;
-            height: 100% !important; /* Avoid 'auto' to ensure height transitions interpolate perfectly */
+            height: 100% !important; /* Forces layout recalculation dynamically to prevent freeze drops */
             border-color: transparent !important;
             box-shadow: none !important;
             opacity: 1 !important;
@@ -526,14 +526,17 @@
             const isInternalReferrer = referrer.includes("thelectrowizard.github.io");
 
             if (path === "/" || path === "" || isInternalReferrer) {
+                // Direct access: No captcha required.
                 document.getElementById('captcha-gateway').classList.add('hidden');
                 windowWrapper.classList.remove('hidden');
                 windowWrapper.classList.remove('iframe-mock');
                 windowWrapper.classList.add('fullscreen-expand');
-                // Clear inline heights to let full document layout settle cleanly
+                
+                // Clean styles immediately so layout displays naturally without 80px CSS constraints
                 windowWrapper.style.height = '';
                 windowWrapper.style.maxWidth = '';
             } else {
+                // Captcha required: Show gateway and wrap element into explicit iframe sizes.
                 windowWrapper.classList.remove('hidden');
                 windowWrapper.classList.add('iframe-mock');
                 document.getElementById('captcha-gateway').classList.remove('hidden');
@@ -547,7 +550,7 @@
             // Remove the captcha layer
             document.getElementById('captcha-gateway').classList.add('hidden');
             
-            // Clear explicit styles so CSS transition configurations can seamlessly execute
+            // Clear layout constraints so class settings interpolate cleanly over transitions
             windowWrapper.style.height = '';
             windowWrapper.style.maxWidth = '';
             

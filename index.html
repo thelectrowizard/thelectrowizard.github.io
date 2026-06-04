@@ -181,7 +181,8 @@
         // Custom Size Configuration for Individual CAPTCHA Levels
         const captchaSizes = {
             1: { width: "300px", height: "80px" },   // Level 1: Compact sizing wrapper
-            2: { width: "400px", height: "600px" },  // Level 2: Expanded standard grid sizing
+            43: { width: "400px", height: "600px" },
+            33: { width: "400px", height: "600px" },  // Level 2: Expanded standard grid sizing
             9: { width: "400px", height: "600px" },
             13: { width: "400px", height: "600px" },
             14: { width: "400px", height: "600px" },
@@ -314,7 +315,7 @@
                 if (currentStep === 1) {
                     currentStep = 2;
                     
-                    const paths = ["42", "2", "9", "13", "14", "15", "5"];
+                    const paths = ["42", "43", "33", "9", "13", "14", "15", "5"];
                     const randomPath = paths[Math.floor(Math.random() * paths.length)];
                     
                     // Modifies frame viewport mapping bounds cleanly prior to loading source targets

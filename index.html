@@ -184,6 +184,17 @@
         const captchaSizes = {
             1: { width: "300px", height: "80px" },   // Level 1: Compact sizing wrapper
             43: { width: "400px", height: "600px" },
+            40: { width: "400px", height: "600px" },
+            18: { width: "400px", height: "600px" },
+            37: { width: "400px", height: "600px" },
+            47: { width: "400px", height: "600px" },
+            44: { width: "400px", height: "600px" },
+            46: { width: "400px", height: "600px" },
+            21: { width: "400px", height: "600px" },
+            22: { width: "400px", height: "600px" },
+            28: { width: "400px", height: "600px" },
+            31: { width: "400px", height: "600px" },
+            35: { width: "400px", height: "600px" },
             33: { width: "400px", height: "600px" },  // Level 2: Expanded standard grid sizing
             9: { width: "400px", height: "600px" },
             13: { width: "400px", height: "600px" },
@@ -318,7 +329,7 @@
                 if (currentStep === 1) {
                     currentStep = 2;
                     
-                    const paths = ["42", "43", "33", "9", "13", "14", "15", "5"];
+                    const paths = ["42", "43", "33", "9", "13", "14", "15", "5", "40", "18", "37", "47", "44", "46", "21", "22", "28", "31", "35"];
                     const randomPath = paths[Math.floor(Math.random() * paths.length)];
                     
                     // FIX: Pass the specific randomPath ID to apply the correct size configuration

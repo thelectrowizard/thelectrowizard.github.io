@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-preset="b27GcrRo">
 <head>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
     <meta charset="UTF-8">
@@ -11,37 +11,63 @@
     <meta property="og:url" content="https://thelectrowizard.github.io/arcade">
     <meta property="og:type" content="website">
     <style>
+        /* --- SHADCN PRESETS DICTIONARY --- */
+        
+        /* Preset: b27GcrRo (Default Light Mode Clean) */
+        html[data-preset="b27GcrRo"] {
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 240 10% 3.9%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --border: 240 5.9% 90%;
+            --input: 240 5.9% 90%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+            --radius: 0.5rem;
+        }
+
         :root {
-            --bg-color: #ffffff;
-            --text-primary: #111111;
-            --text-secondary: #767676;
-            --link-color: #000000;
-            --link-hover: #767676;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-family: var(--font-family);
+            line-height: 1.5;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             padding: 20px;
-            box-sizing: border-box;
             text-align: center;
             overflow: hidden; 
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        /* --- ENTRY & EXIT ANIMATIONS --- */
         .page-transition {
             opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform: translateY(-8px);
+            animation: fadeInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             display: flex;
             flex-direction: column;
             align-items: center;
+            z-index: 20;
         }
 
         .page-transition.fade-out {
@@ -49,62 +75,69 @@
         }
 
         @keyframes fadeInDown {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes fadeUpOut {
             0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 0; transform: translateY(-12px); }
         }
 
+        /* --- SHADCN TYPOGRAPHY --- */
         h1 {
-            font-size: 1.8rem;
-            font-weight: 500;
-            letter-spacing: -0.02em;
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
             margin-bottom: 8px;
+            color: hsl(var(--foreground));
         }
 
         p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
             line-height: 1.6;
             max-width: 320px;
             margin: 0 0 24px 0;
         }
 
         a {
-            color: var(--link-color);
+            color: hsl(var(--foreground));
             text-decoration: underline;
             text-underline-offset: 4px;
             transition: color 0.2s ease;
+            font-weight: 500;
         }
 
         a:hover {
-            color: var(--link-hover);
+            color: hsl(var(--muted-foreground));
         }
 
+        /* --- CONTAINER & IFRAME CARD --- */
         #captcha-container {
             margin-bottom: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            transition: all 0.3s ease; /* Smooth transition for sizing adjustments */
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         iframe {
-            border: none;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
             display: block; 
             max-width: 100%;
-            max-height: 70vh; /* Keeps it from expanding past the viewport bounds */
-            transition: width 0.3s ease, height 0.3s ease; /* Resizes beautifully */
+            max-height: 70vh; 
+            background-color: hsl(var(--card));
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
         }
 
+        /* --- SHADCN PROGRESS LINE CONTAINER --- */
         .progress-bar {
-            width: 40px;
-            height: 2px;
-            background-color: #eaeaea;
+            width: 120px;
+            height: 4px;
+            background-color: hsl(var(--muted));
+            border-radius: var(--radius);
             position: relative;
             overflow: hidden;
             display: none; 
@@ -121,8 +154,9 @@
             top: 0;
             height: 100%;
             width: 100%;
-            background-color: var(--text-primary);
-            animation: load 1.2s linear forwards;
+            background-color: hsl(var(--primary));
+            border-radius: var(--radius);
+            animation: load 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
 
         @keyframes load {
@@ -133,12 +167,13 @@
         footer {
             position: absolute;
             bottom: 20px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            z-index: 20;
         }
 
         footer a {
-            color: var(--text-primary);
+            color: hsl(var(--foreground));
             text-decoration: underline;
             text-underline-offset: 3px;
         }
@@ -177,24 +212,27 @@
     </footer>
 
     <script>
+        // Inject active preset token on initialization
+        const activePreset = "b27GcrRo"; 
+        document.documentElement.setAttribute('data-preset', activePreset);
+
         const destination = "https://myarcade.pages.dev";
         let currentStep = 1;
-// const paths = ["42", "2", "9", "13", "14", "15", "5"];
-        // Custom Size Configuration for Individual CAPTCHA Levels
+
         const captchaSizes = {
-            1: { width: "300px", height: "80px" },   // Level 1: Compact sizing wrapper
+            1: { width: "300px", height: "80px" }, 
             43: { width: "400px", height: "600px" },
             40: { width: "400px", height: "600px" },
             18: { width: "400px", height: "600px" },
             37: { width: "400px", height: "600px" },
             44: { width: "400px", height: "600px" },
-            46: { width: "400px", height: "6000px" },
+            46: { width: "400px", height: "1000px" },
             21: { width: "400px", height: "600px" },
             22: { width: "400px", height: "600px" },
             28: { width: "400px", height: "600px" },
             31: { width: "400px", height: "600px" },
             35: { width: "400px", height: "600px" },
-            33: { width: "400px", height: "600px" },  // Level 2: Expanded standard grid sizing
+            33: { width: "400px", height: "600px" }, 
             9: { width: "400px", height: "600px" },
             13: { width: "400px", height: "600px" },
             14: { width: "400px", height: "600px" },
@@ -205,7 +243,6 @@
 
         const frameElement = document.getElementById('captcha-frame');
         
-        // Dynamic Resize Deployment Handler
         function applyCaptchaSize(step) {
             if (captchaSizes[step]) {
                 frameElement.style.width = captchaSizes[step].width;
@@ -213,10 +250,9 @@
             }
         }
         
-        // Fire initialization sizing profile instantly
         applyCaptchaSize(currentStep);
 
-        // Advanced Arcade Engine Particle Architecture Engine Setup
+        // Particle Canvas Mechanics
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -232,12 +268,10 @@
             constructor(x, y, color) {
                 this.x = x;
                 this.y = y;
-                // Matches secondary code physics engine tracking configurations
                 this.vx = (Math.random() - 0.5) * 8;
                 this.vy = (Math.random() - 0.5) * 8;
                 this.size = Math.random() * 4 + 2;
                 this.alpha = 1;
-                // Matches the quick square-decay tracking timeline properties
                 this.decay = Math.random() * 0.02 + 0.015;
                 this.color = color || '#111111';
             }
@@ -252,7 +286,6 @@
                 ctx.save();
                 ctx.globalAlpha = Math.max(0, this.alpha);
                 ctx.fillStyle = this.color;
-                // Shifted away from rounded arc setups to sharp arcade style grid geometry
                 ctx.fillRect(this.x, this.y, this.size, this.size);
                 ctx.restore();
             }
@@ -264,9 +297,9 @@
             const startX = rect.left + rect.width / 2;
             const startY = rect.top + rect.height / 2;
 
-            const themeColors = ['#111111', '#767676', '#eaeaea', '#a3a3a3'];
+            // Updated to pull dynamically from shadcn-mapped clean variations
+            const themeColors = ['#18181b', '#71717a', '#e4e4e7', '#a1a1aa'];
 
-            // Scaled particle population configuration to mimic execution frame bursts
             for (let i = 0; i < 65; i++) {
                 const selectedColor = themeColors[Math.floor(Math.random() * themeColors.length)];
                 particles.push(new Particle(startX, startY, selectedColor));
@@ -295,10 +328,10 @@
                     const data = await response.json();
                     document.getElementById('star-count').textContent = data.stargazers_count;
                 } else {
-                    document.getElementById('star-count').textContent = 'N/A';
+                    document.getElementById('star-count').textContent = '—';
                 }
             } catch (error) {
-                document.getElementById('star-count').textContent = 'N/A';
+                document.getElementById('star-count').textContent = '—';
             }
         }
         
@@ -320,20 +353,15 @@
             }, 1200); 
         }
 
-        // Processing Capture Stream Engine Updates 
-        // Processing Capture Stream Engine Updates 
         window.addEventListener("message", (event) => {
             if (event.data.type === "captcha-completed") {
-
                 if (currentStep === 1) {
                     currentStep = 2;
                     
                     const paths = ["42", "43", "33", "9", "13", "14", "15", "5", "40", "18", "37", "44", "46", "21", "22", "28", "31", "35"];
                     const randomPath = paths[Math.floor(Math.random() * paths.length)];
                     
-                    // FIX: Pass the specific randomPath ID to apply the correct size configuration
                     applyCaptchaSize(randomPath);
-                    
                     frameElement.src = `https://embed.neal.fun/not-a-robot/${randomPath}`;
                 } else if (currentStep === 2) {
                     triggerExplosion();

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" data-preset="b1VlItvO">
+<head>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade</title>
+    <link rel="icon" type="image/svg+xml" href="https://thelectrowizard.github.io/arcade/joystick.svg">
+    <meta property="og:title" content="Arcade">
+    <meta property="og:image" content="https://thelectrowizard.github.io/main.jpeg">
+    <meta property="og:url" content="https://thelectrowizard.github.io/arcade">
+    <meta property="og:type" content="website">
+    <style>
+        /* --- SHADCN PRESETS DICTIONARY --- */
+        
+        /* Preset: b27GcrRo (Default Light Mode Clean) */
+        html[data-preset="b27GcrRo"] {
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 240 10% 3.9%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --border: 240 5.9% 90%;
+            --input: 240 5.9% 90%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+            --radius: 0.5rem;
+        }
+
+        :root {
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-family: var(--font-family);
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+            text-align: center;
+            overflow: hidden; 
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- ENTRY & EXIT ANIMATIONS --- */
+        .page-transition {
+            opacity: 0;
+            transform: translateY(-8px);
+            animation: fadeInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .page-transition.fade-out {
+            animation: fadeUpOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInDown {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUpOut {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-12px); }
+        }
+
+        /* --- SHADCN TYPOGRAPHY --- */
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-bottom: 8px;
+            color: hsl(var(--foreground));
+        }
+
+        p {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            line-height: 1.6;
+            max-width: 320px;
+            margin: 0 0 24px 0;
+        }
+
+        a {
+            color: hsl(var(--foreground));
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            transition: color 0.2s ease;
+            font-weight: 500;
+        }
+
+        a:hover {
+            color: hsl(var(--muted-foreground));
+        }
+
+        /* --- CONTAINER & IFRAME CARD --- */
+        #captcha-container {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        iframe {
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            display: block; 
+            max-width: 100%;
+            max-height: 70vh; 
+            background-color: hsl(var(--card));
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+
+        /* --- SHADCN PROGRESS LINE CONTAINER --- */
+        .progress-bar {
+            width: 120px;
+            height: 4px;
+            background-color: hsl(var(--muted));
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+            display: none; 
+        }
+
+        .progress-bar.active {
+            display: block;
+        }
+
+        .progress-bar.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background-color: hsl(var(--primary));
+            border-radius: var(--radius);
+            animation: load 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+
+        @keyframes load {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            z-index: 20;
+        }
+
+        footer a {
+            color: hsl(var(--foreground));
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; 
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="page-transition" id="animated-content">
+        <h1>Welcome to the Arcade</h1>
+        <p>
+            Version: 2.0.0<br>
+            GitHub Stars: <span id="star-count">Loading...</span>
+        </p>
+
+        <div id="captcha-container">
+            <iframe id="captcha-frame" src="https://embed.neal.fun/not-a-robot/1"></iframe>
+        </div>
+
+        <div class="progress-bar" id="loader"></div>
+    </div>
+
+    <footer>
+        Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+    </footer>
+
+    <script>
+        // Inject active preset token on initialization
+        const activePreset = "b1VlItvO"; 
+        document.documentElement.setAttribute('data-preset', activePreset);
+
+        const destination = "https://myarcade.pages.dev";
+        let currentStep = 1;
+
+        const captchaSizes = {
+            1: { width: "300px", height: "80px" }, 
+            43: { width: "400px", height: "600px" },
+            40: { width: "400px", height: "600px" },
+            18: { width: "400px", height: "600px" },
+            37: { width: "400px", height: "600px" },
+            44: { width: "400px", height: "600px" },
+            46: { width: "400px", height: "1000px" },
+            21: { width: "400px", height: "600px" },
+            22: { width: "400px", height: "600px" },
+            28: { width: "400px", height: "600px" },
+            31: { width: "400px", height: "600px" },
+            35: { width: "400px", height: "600px" },
+            33: { width: "400px", height: "600px" }, 
+            9: { width: "400px", height: "600px" },
+            13: { width: "400px", height: "600px" },
+            14: { width: "400px", height: "600px" },
+            15: { width: "400px", height: "600px" },
+            5: { width: "400px", height: "600px" },
+            42: { width: "400px", height: "600px" }
+        };
+
+        const frameElement = document.getElementById('captcha-frame');
+        
+        function applyCaptchaSize(step) {
+            if (captchaSizes[step]) {
+                frameElement.style.width = captchaSizes[step].width;
+                frameElement.style.height = captchaSizes[step].height;
+            }
+        }
+        
+        applyCaptchaSize(currentStep);
+
+        // Particle Canvas Mechanics
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.size = Math.random() * 4 + 2;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.015;
+                this.color = color || '#111111';
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function triggerExplosion() {
+            const container = document.getElementById('captcha-container');
+            const rect = container.getBoundingClientRect();
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+
+            // Updated to pull dynamically from shadcn-mapped clean variations
+            const themeColors = ['#18181b', '#71717a', '#e4e4e7', '#a1a1aa'];
+
+            for (let i = 0; i < 65; i++) {
+                const selectedColor = themeColors[Math.floor(Math.random() * themeColors.length)];
+                particles.push(new Particle(startX, startY, selectedColor));
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles = particles.filter(p => p.alpha > 0);
+                
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        async function fetchGitHubStars() {
+            try {
+                const response = await fetch('https://api.github.com/repos/thelectrowizard/thelectrowizard.github.io');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('star-count').textContent = data.stargazers_count;
+                } else {
+                    document.getElementById('star-count').textContent = '—';
+                }
+            } catch (error) {
+                document.getElementById('star-count').textContent = '—';
+            }
+        }
+        
+        fetchGitHubStars();
+
+        function leavePage(target) {
+            document.getElementById('animated-content').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = target;
+            }, 380); 
+        }
+
+        function startLoadingSequence() {
+            const loader = document.getElementById('loader');
+            loader.classList.add('active'); 
+
+            setTimeout(() => {
+                leavePage(destination);
+            }, 1200); 
+        }
+
+        window.addEventListener("message", (event) => {
+            if (event.data.type === "captcha-completed") {
+                if (currentStep === 1) {
+                    currentStep = 2;
+                    
+                    const paths = ["42", "43", "33", "9", "13", "14", "15", "5", "40", "18", "37", "44", "46", "21", "22", "28", "31", "35"];
+                    const randomPath = paths[Math.floor(Math.random() * paths.length)];
+                    
+                    applyCaptchaSize(randomPath);
+                    frameElement.src = `https://embed.neal.fun/not-a-robot/${randomPath}`;
+                } else if (currentStep === 2) {
+                    triggerExplosion();
+                    document.getElementById('captcha-container').style.display = 'none';
+                    startLoadingSequence();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

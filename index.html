@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-preset="sera-editorial">
+<head>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
+    <meta property="og:image" content="https://myarcade.pages.dev/imgs/chess.jpeg">
+    <meta property="og:url" content="https://myarcade.pages.dev/chess">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Chess">
+    <meta name="description" content="Avoid the Blocks • Avoid the Blocks V2 • GeoDash • Microracer • PokeGoLite">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chess</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/nprogress@0.2.0/nprogress.css" />
+    <script src="https://unpkg.com/nprogress@0.2.0/nprogress.js"></script>
+
+    <style>
+        /* --- SHADCN OFFICIAL SERA (EDITORIAL STYLE) TOKENS --- */
+        html[data-preset="sera-editorial"] {
+            --background: 0 0% 100%;             /* Pure editorial paper white */
+            --foreground: 240 10% 3.9%;          /* Deep ink black */
+            --card: 0 0% 98%;                    /* Minimal off-white card background */
+            --muted-foreground: 240 3.8% 46.1%;  /* Soft graphite gray for metadata */
+            --border: 240 5.9% 90%;              /* Light hair-line rule border */
+            --muted: 240 4.8% 95.9%;             /* Clean structural track layer */
+            --primary: 240 5.9% 10%;             /* Rich black primary ink */
+            --primary-foreground: 0 0% 98%;      /* Stark white foreground text */
+            --radius: 0.125rem;                  /* Structural, sharp corners matching typography rules */
+        }
+
+        :root {
+            /* Sera Style Typography Framework */
+            --font-serif: "Playfair Display", "Georgia", "Times New Roman", serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-family: var(--font-sans);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 24px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- FLUID PAGE TRANSITIONS --- */
+        .page-transition {
+            opacity: 0;
+            transform: translateY(-8px);
+            animation: fadeInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .page-transition.fade-out {
+            animation: fadeUpOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInDown {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUpOut {
+            to { opacity: 0; transform: translateY(-8px); }
+        }
+
+        /* Sera Editorial Heading */
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.25rem;
+            font-weight: 400;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+            color: hsl(var(--foreground));
+        }
+
+        p {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            line-height: 1.6;
+            margin-bottom: 32px;
+            letter-spacing: 0.01em;
+        }
+
+        /* --- SHADCN SERA BUTTON --- */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            height: 40px;
+            padding: 0 24px;
+            cursor: pointer;
+            transition: background-color 0.2s, opacity 0.2s;
+            text-decoration: none;
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border: 1px solid hsl(var(--primary));
+            font-family: var(--font-sans);
+            margin-top: 24px;
+        }
+        
+        .btn-primary:hover { 
+            background-color: transparent;
+            color: hsl(var(--primary));
+        }
+
+        /* --- CUSTOM STYLING FOR NPROGRESS TO MATCH SERA THEME --- */
+        #nprogress .bar {
+            background: hsl(var(--primary)) !important;
+            height: 3px !important;
+        }
+        #nprogress .peg {
+            box-shadow: 0 0 10px hsl(var(--primary)), 0 0 5px hsl(var(--primary)) !important;
+        }
+        #nprogress .spinner-icon {
+            border-top-color: hsl(var(--primary)) !important;
+            border-left-color: hsl(var(--primary)) !important;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 24px;
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            letter-spacing: 0.02em;
+        }
+
+        footer a {
+            color: hsl(var(--foreground));
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        footer a:hover {
+            border-bottom-color: hsl(var(--foreground));
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition" id="animated-content">
+        <h1>Arcade</h1>
+        <p>Redirecting to the Arcade.</p>
+        
+        <a href="redirect.html" id="fallback-btn" class="btn-primary nav-link hidden">Continue Manually</a>
+    </div>
+
+    <footer>
+        Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+    </footer>
+
+    <script>
+        const destination = "https://myarcade.pages.dev";
+
+        // Safely start NProgress once the document is interactive / ready
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof NProgress !== "undefined") {
+                NProgress.configure({ minimum: 0.08, showSpinner: true });
+                NProgress.start();
+            }
+        });
+
+        function leavePage(target) {
+            if (typeof NProgress !== "undefined") {
+                NProgress.done();
+            }
+            document.getElementById('animated-content').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = target;
+            }, 280);
+        }
+
+        // Automatic redirection after progress completes (5 seconds)
+        setTimeout(() => {
+            leavePage(destination);
+        }, 5000);
+
+        // Reveal the uppercase manual button after 8 seconds total
+        setTimeout(() => {
+            const btn = document.getElementById('fallback-btn');
+            if (btn) {
+                btn.classList.remove('hidden');
+            }
+        }, 8000);
+
+        // Intercept user manual click execution
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                leavePage(destination);
+            });
+        });
+    </script>
+</body>
+</html>

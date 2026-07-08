@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" data-preset="sera-editorial">
 <head>
+    <link rel="icon" type="image/svg+xml" href="https://myarcade.pages.dev/joystick.svg">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="74562084-62cf-4203-9e47-1b4fa0d1ecbf"></script>
-    <meta property="og:image" content="https://myarcade.pages.dev/imgs/chess.jpeg">
-    <meta property="og:url" content="https://myarcade.pages.dev/chess">
+    <meta property="og:image" content="https://thelectrowizard.github.io/main.jpeg">
+    <meta property="og:url" content="https://myarcade.pages.dev/">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Chess">
+    <meta property="og:title" content="Arcade">
     <meta name="description" content="Avoid the Blocks • Avoid the Blocks V2 • GeoDash • Microracer • PokeGoLite">
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chess</title>
-
-    <link rel="stylesheet" href="https://unpkg.com/nprogress@0.2.0/nprogress.css" />
-    <script src="https://unpkg.com/nprogress@0.2.0/nprogress.js"></script>
-
+    <title>Arcade</title>
     <style>
         /* --- SHADCN OFFICIAL SERA (EDITORIAL STYLE) TOKENS --- */
         html[data-preset="sera-editorial"] {
@@ -53,6 +50,54 @@
             padding: 24px;
             text-align: center;
             -webkit-font-smoothing: antialiased;
+            overflow: hidden; /* Prevents scrollbars from fixed ads */
+        }
+
+        /* --- ADVERTISEMENT STYLING --- */
+        .ad-container {
+            position: fixed;
+            display: none; /* Hidden by default until config is checked */
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 10pt;
+            overflow: hidden;
+            font-family: var(--font-sans);
+            z-index: 10;
+        }
+
+        /* Slim vertical ads (Skyscraper format) */
+        .ad-vertical {
+            top: 50%;
+            transform: translateY(-50%);
+            width: 160px;
+            height: 600px;
+            max-height: 80vh;
+        }
+
+        .ad-left {
+            left: 24px;
+        }
+
+        .ad-right {
+            right: 24px;
+        }
+
+        /* Bottom leaderboard ad */
+        .ad-bottom {
+            bottom: 60px; /* Sits cleanly above the footer */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 728px;
+            max-width: 90vw;
+            height: 90px;
+        }
+
+        /* Hide ads on small mobile screens to prevent overlapping content */
+        @media (max-width: 1100px) {
+            .ad-vertical { display: none !important; }
+        }
+        @media (max-height: 700px) {
+            .ad-bottom { display: none !important; }
         }
 
         /* --- FLUID PAGE TRANSITIONS --- */
@@ -65,6 +110,7 @@
             align-items: center;
             width: 100%;
             max-width: 400px;
+            z-index: 20;
         }
 
         .page-transition.fade-out {
@@ -124,17 +170,28 @@
             color: hsl(var(--primary));
         }
 
-        /* --- CUSTOM STYLING FOR NPROGRESS TO MATCH SERA THEME --- */
-        #nprogress .bar {
-            background: hsl(var(--primary)) !important;
-            height: 3px !important;
+        /* --- SHADCN SERA PROGRESS BAR --- */
+        .progress-bar-container {
+            width: 140px;
+            height: 1px;
+            background-color: hsl(var(--border));
+            position: relative;
+            overflow: hidden;
         }
-        #nprogress .peg {
-            box-shadow: 0 0 10px hsl(var(--primary)), 0 0 5px hsl(var(--primary)) !important;
+
+        .progress-bar-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background-color: hsl(var(--primary));
+            animation: load 5s linear forwards;
         }
-        #nprogress .spinner-icon {
-            border-top-color: hsl(var(--primary)) !important;
-            border-left-color: hsl(var(--primary)) !important;
+
+        @keyframes load {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
         }
 
         footer {
@@ -143,6 +200,7 @@
             font-size: 0.75rem;
             color: hsl(var(--muted-foreground));
             letter-spacing: 0.02em;
+            z-index: 20;
         }
 
         footer a {
@@ -163,32 +221,73 @@
 </head>
 <body>
 
+    <div id="ad-wrapper-left" class="ad-container ad-vertical ad-left">
+        <ins class="adsbygoogle"
+             style="display:block; width:100%; height:100%;"
+             data-ad-format="vertical"
+             data-full-width-responsive="true"></ins>
+    </div>
+
+    <div id="ad-wrapper-right" class="ad-container ad-vertical ad-right">
+        <ins class="adsbygoogle"
+             style="display:block; width:100%; height:100%;"
+             data-ad-format="vertical"
+             data-full-width-responsive="true"></ins>
+    </div>
+
+    <div id="ad-wrapper-bottom" class="ad-container ad-bottom">
+        <ins class="adsbygoogle"
+             style="display:block; width:100%; height:100%;"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+    </div>
+
     <div class="page-transition" id="animated-content">
-        <h1>Arcade</h1>
+        <h1>Loading</h1>
         <p>Redirecting to the Arcade.</p>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill"></div>
+        </div>
         
         <a href="redirect.html" id="fallback-btn" class="btn-primary nav-link hidden">Continue Manually</a>
     </div>
 
     <footer>
-        Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+        Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.cloudflare.com" target="_blank" rel="noopener">Cloudflare Pages</a>
     </footer>
+
+    <script type="module">
+        // Import your config file. 
+        // Note: Ensure your config.js exports the object, e.g.: `export default { siteId: "..." };`
+        // If it's a standard script setting a global variable instead, replace the import with `const config = window.yourConfigVar;`
+        import config from './config.js';
+
+        if (config && config.siteId && config.siteId !== "placeholder") {
+            // 1. Show the ad containers
+            document.querySelectorAll('.ad-container').forEach(el => {
+                el.style.display = 'block';
+            });
+
+            // 2. Inject the Google Ads library dynamically
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.siteId}`;
+            script.crossOrigin = "anonymous";
+            document.head.appendChild(script);
+
+            // 3. Initialize the ads and attach the siteId
+            const ads = document.querySelectorAll('.adsbygoogle');
+            ads.forEach(ad => {
+                ad.setAttribute('data-ad-client', config.siteId);
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            });
+        }
+    </script>
 
     <script>
         const destination = "https://myarcade.pages.dev";
 
-        // Safely start NProgress once the document is interactive / ready
-        document.addEventListener("DOMContentLoaded", () => {
-            if (typeof NProgress !== "undefined") {
-                NProgress.configure({ minimum: 0.08, showSpinner: true });
-                NProgress.start();
-            }
-        });
-
         function leavePage(target) {
-            if (typeof NProgress !== "undefined") {
-                NProgress.done();
-            }
             document.getElementById('animated-content').classList.add('fade-out');
             setTimeout(() => {
                 window.location.href = target;
@@ -200,7 +299,7 @@
             leavePage(destination);
         }, 5000);
 
-        // Reveal the uppercase manual button after 8 seconds total
+        // Reveal the uppercase structural manual button 3 seconds later (8s total)
         setTimeout(() => {
             const btn = document.getElementById('fallback-btn');
             if (btn) {

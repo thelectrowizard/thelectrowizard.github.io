@@ -12,7 +12,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Arcade</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css">
+
     <style>
+        /* Custom NProgress styling overrides matching Sera design palette colors */
+        #nprogress .bar {
+            background: hsl(240, 5.9%, 10%) !important;
+            height: 3px !important;
+        }
+        #nprogress .spinner-icon {
+            border-top-color: hsl(240, 5.9%, 10%) !important;
+            border-left-color: hsl(240, 5.9%, 10%) !important;
+        }
+
         /* --- SHADCN OFFICIAL SERA (EDITORIAL STYLE) TOKENS --- */
         html[data-preset="sera-editorial"] {
             --background: 0 0% 100%;             /* Pure editorial paper white */
@@ -27,7 +41,6 @@
         }
 
         :root {
-            /* Sera Style Typography Framework */
             --font-serif: "Playfair Display", "Georgia", "Times New Roman", serif;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
@@ -44,67 +57,19 @@
             font-family: var(--font-sans);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             padding: 24px;
             text-align: center;
             -webkit-font-smoothing: antialiased;
-            overflow: hidden; /* Prevents scrollbars from fixed ads */
+            overflow-x: hidden;
         }
 
-        /* --- ADVERTISEMENT STYLING --- */
-        .ad-container {
-            position: fixed;
-            display: none; /* Hidden by default until config is checked */
-            background-color: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 10pt;
-            overflow: hidden;
-            font-family: var(--font-sans);
-            z-index: 10;
-        }
-
-        /* Slim vertical ads (Skyscraper format) */
-        .ad-vertical {
-            top: 50%;
-            transform: translateY(-50%);
-            width: 160px;
-            height: 600px;
-            max-height: 80vh;
-        }
-
-        .ad-left {
-            left: 24px;
-        }
-
-        .ad-right {
-            right: 24px;
-        }
-
-        /* Bottom leaderboard ad */
-        .ad-bottom {
-            bottom: 60px; /* Sits cleanly above the footer */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 728px;
-            max-width: 90vw;
-            height: 90px;
-        }
-
-        /* Hide ads on small mobile screens to prevent overlapping content */
-        @media (max-width: 1100px) {
-            .ad-vertical { display: none !important; }
-        }
-        @media (max-height: 700px) {
-            .ad-bottom { display: none !important; }
-        }
-
-        /* --- FLUID PAGE TRANSITIONS --- */
-        .page-transition {
+        /* --- GLOBAL FADE ANIMATION STAGE --- */
+        #page-view-wrapper {
             opacity: 0;
-            transform: translateY(-8px);
-            animation: fadeInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: globalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -113,19 +78,73 @@
             z-index: 20;
         }
 
-        .page-transition.fade-out {
-            animation: fadeUpOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        #page-view-wrapper.fade-out {
+            animation: globalFadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes fadeInDown {
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes globalFadeIn { to { opacity: 1; } }
+        @keyframes globalFadeOut { to { opacity: 0; } }
+
+        /* GitHub Bar Position */
+        .header-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+            margin-top: 10px;
         }
 
-        @keyframes fadeUpOut {
-            to { opacity: 0; transform: translateY(-8px); }
+        /* --- ADSENSE CONTAINERS WITH MANDATORY 10PT CORNER RADIUS --- */
+        .ad-container {
+            display: none; 
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 10pt; 
+            overflow: hidden;
+            z-index: 10;
         }
 
-        /* Sera Editorial Heading */
+        /* Side Rails (Desktop layout format) */
+        .ad-vertical {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 160px;
+            height: 600px;
+            max-height: 75vh;
+        }
+        .ad-left { left: 24px; }
+        .ad-right { right: 24px; }
+
+        /* Top and Bottom banner formats */
+        .ad-horizontal {
+            width: 100%;
+            max-width: 728px;
+            height: 90px;
+            margin: 16px auto;
+        }
+        
+        /* Bottom Sticky Layout Ad specific to tracking view modes */
+        .ad-bottom-sticky {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90vw;
+            max-width: 728px;
+            height: 90px;
+            z-index: 25;
+        }
+
+        /* Responsive Layout Overrides */
+        @media (max-width: 1150px) {
+            .ad-vertical { display: none !important; }
+        }
+        @media (min-width: 1151px) {
+            .ad-mobile-top { display: none !important; }
+        }
+
+        /* Typography Styling */
         h1 {
             font-family: var(--font-serif);
             font-size: 2.25rem;
@@ -143,7 +162,7 @@
             letter-spacing: 0.01em;
         }
 
-        /* --- SHADCN SERA BUTTON --- */
+        /* Buttons Styling */
         .btn-primary {
             display: inline-flex;
             align-items: center;
@@ -156,18 +175,29 @@
             height: 40px;
             padding: 0 24px;
             cursor: pointer;
-            transition: background-color 0.2s, opacity 0.2s;
+            transition: all 0.2s ease;
             text-decoration: none;
             background-color: hsl(var(--primary));
             color: hsl(var(--primary-foreground));
             border: 1px solid hsl(var(--primary));
             font-family: var(--font-sans);
-            margin-top: 24px;
         }
         
         .btn-primary:hover { 
             background-color: transparent;
             color: hsl(var(--primary));
+        }
+
+        /* --- FLOATING REDIRECT FOOTER DRAWER --- */
+        .floating-footer-drawer {
+            position: fixed;
+            bottom: 145px; 
+            right: 24px;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
         }
 
         /* --- SHADCN SERA PROGRESS BAR --- */
@@ -177,6 +207,7 @@
             background-color: hsl(var(--border));
             position: relative;
             overflow: hidden;
+            margin-bottom: 24px;
         }
 
         .progress-bar-fill {
@@ -186,134 +217,224 @@
             height: 100%;
             width: 100%;
             background-color: hsl(var(--primary));
-            animation: load 5s linear forwards;
+            transform: translateX(-100%);
         }
 
-        @keyframes load {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(0); }
+        .progress-active { animation: load 5s linear forwards; }
+        @keyframes load { 0% { transform: translateX(-100%); } 100% { transform: translateX(0); } }
+
+        /* --- PROJECTS CARD GRID STYLING --- */
+        .projects-section {
+            width: 100%;
+            margin-top: 12px;
+            text-align: left;
         }
 
-        footer {
-            position: absolute;
-            bottom: 24px;
-            font-size: 0.75rem;
-            color: hsl(var(--muted-foreground));
-            letter-spacing: 0.02em;
-            z-index: 20;
-        }
-
-        footer a {
-            color: hsl(var(--foreground));
+        .project-card {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
             text-decoration: none;
-            font-weight: 500;
-            border-bottom: 1px solid hsl(var(--border));
+            color: inherit;
+            transition: border-color 0.2s;
         }
 
-        footer a:hover {
-            border-bottom-color: hsl(var(--foreground));
+        .project-card:hover { border-color: hsl(var(--primary)); }
+
+        .project-img {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            object-fit: cover;
+            margin-right: 16px;
+            border: 1px solid hsl(var(--border));
         }
 
-        .hidden {
-            display: none !important;
+        .project-details { flex-grow: 1; }
+        .project-title { font-family: var(--font-serif); font-size: 1.1rem; margin-bottom: 2px; }
+        .project-action {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: hsl(var(--muted-foreground));
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
+    <script>NProgress.start();</script>
+
+    <div id="ad-top-mobile" class="ad-container ad-horizontal ad-mobile-top">
+        <ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+    </div>
 
     <div id="ad-wrapper-left" class="ad-container ad-vertical ad-left">
-        <ins class="adsbygoogle"
-             style="display:block; width:100%; height:100%;"
-             data-ad-format="vertical"
-             data-full-width-responsive="true"></ins>
+        <ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-format="vertical" data-full-width-responsive="true"></ins>
     </div>
 
     <div id="ad-wrapper-right" class="ad-container ad-vertical ad-right">
-        <ins class="adsbygoogle"
-             style="display:block; width:100%; height:100%;"
-             data-ad-format="vertical"
-             data-full-width-responsive="true"></ins>
+        <ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-format="vertical" data-full-width-responsive="true"></ins>
     </div>
 
-    <div id="ad-wrapper-bottom" class="ad-container ad-bottom">
-        <ins class="adsbygoogle"
-             style="display:block; width:100%; height:100%;"
-             data-ad-format="horizontal"
-             data-full-width-responsive="true"></ins>
-    </div>
-
-    <div class="page-transition" id="animated-content">
-        <h1>Loading</h1>
-        <p>Redirecting to the Arcade.</p>
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill"></div>
-        </div>
+    <div id="page-view-wrapper">
         
-        <a href="redirect.html" id="fallback-btn" class="btn-primary nav-link hidden">Continue Manually</a>
+        <div class="header-bar">
+            <iframe src="https://ghbtns.com/github-btn.html?user=thelectrowizard&repo=YOUR_REPO_NAME_HERE&type=star&count=true&size=medium" 
+                    frameborder="0" scrolling="0" width="120" height="20" title="GitHub Star">
+            </iframe>
+        </div>
+
+        <h1 id="main-heading">Loading</h1>
+        <p id="sub-heading">Checking reference fields...</p>
+        
+        <div class="progress-bar-container" id="progress-container">
+            <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+
+        <div id="projects-inline-panel" class="projects-section hidden">
+            <a href="https://myarcade.pages.dev" class="project-card">
+                <img src="https://myarcade.pages.dev/joystick.svg" alt="Arcade Logo" class="project-img">
+                <div class="project-details">
+                    <div class="project-title">Arcade</div>
+                    <div class="project-action">View &#x2197;</div>
+                </div>
+            </a>
+        </div>
     </div>
 
-    <footer>
-        Analytics by <a href="https://umami.is" target="_blank" rel="noopener">Umami</a> &bull; Hosting by <a href="https://pages.cloudflare.com" target="_blank" rel="noopener">Cloudflare Pages</a>
-    </footer>
+    <div id="floating-redirect-module" class="floating-footer-drawer hidden">
+        <button id="floating-fallback-btn" class="btn-primary hidden" style="margin-bottom:4px;">Continue Manually</button>
+        <button id="floating-toggle-projects" class="btn-primary" style="opacity:0.9;">View Other Projects</button>
+    </div>
+
+    <div id="ad-wrapper-bottom" class="ad-container ad-bottom-sticky">
+        <ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+    </div>
 
     <script type="module">
-        // Import your config file. 
-        // Note: Ensure your config.js exports the object, e.g.: `export default { siteId: "..." };`
-        // If it's a standard script setting a global variable instead, replace the import with `const config = window.yourConfigVar;`
         import config from 'https://myarcade.pages.dev/config.js';
 
         if (config && config.siteId && config.siteId !== "placeholder") {
-            // 1. Show the ad containers
             document.querySelectorAll('.ad-container').forEach(el => {
                 el.style.display = 'block';
             });
 
-            // 2. Inject the Google Ads library dynamically
             const script = document.createElement('script');
             script.async = true;
             script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.siteId}`;
             script.crossOrigin = "anonymous";
             document.head.appendChild(script);
 
-            // 3. Initialize the ads and attach the siteId
             const ads = document.querySelectorAll('.adsbygoogle');
             ads.forEach(ad => {
                 ad.setAttribute('data-ad-client', config.siteId);
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
             });
         }
+        // Conclude NProgress trace upon full module dependency assembly
+        NProgress.done();
     </script>
 
     <script>
-        const destination = "https://myarcade.pages.dev";
+        let destination = "https://myarcade.pages.dev";
+        let isRedirectMode = false;
 
-        function leavePage(target) {
-            document.getElementById('animated-content').classList.add('fade-out');
+        function triggerFadeExit(targetUrl) {
+            document.getElementById('page-view-wrapper').classList.add('fade-out');
             setTimeout(() => {
-                window.location.href = target;
+                window.location.href = targetUrl;
             }, 280);
         }
 
-        // Automatic redirection after progress completes (5 seconds)
-        setTimeout(() => {
-            leavePage(destination);
-        }, 5000);
+        // Action function to preload raw code document footprint without loading media weights
+        function preloadTargetDocument(url) {
+            NProgress.start();
+            const prefetchLink = document.createElement('link');
+            prefetchLink.rel = 'prefetch';
+            prefetchLink.as = 'document';
+            prefetchLink.href = url;
+            document.head.appendChild(prefetchLink);
+        }
 
-        // Reveal the uppercase structural manual button 3 seconds later (8s total)
-        setTimeout(() => {
-            const btn = document.getElementById('fallback-btn');
-            if (btn) {
-                btn.classList.remove('hidden');
+        document.addEventListener("DOMContentLoaded", () => {
+            const referrer = document.referrer;
+            const heading = document.getElementById('main-heading');
+            const subHeading = document.getElementById('sub-heading');
+            const progressBar = document.getElementById('progress-bar');
+            const progressContainer = document.getElementById('progress-container');
+            const inlineProjects = document.getElementById('projects-inline-panel');
+            const floatingModule = document.getElementById('floating-redirect-module');
+            const fallbackBtn = document.getElementById('floating-fallback-btn');
+
+            if (referrer) {
+                try {
+                    const refUrl = new URL(referrer);
+                    const host = refUrl.hostname;
+
+                    if (host === 'myarcade.pages.dev' || host.endsWith('.myarcade.pages.dev')) {
+                        isRedirectMode = true;
+                        let cleanPath = refUrl.pathname;
+                        if (cleanPath.endsWith('/page')) {
+                            cleanPath = cleanPath.slice(0, -5);
+                        }
+                        destination = refUrl.origin + cleanPath + refUrl.search + refUrl.hash;
+                    }
+                } catch (e) {
+                    console.error("Referrer structural parse mismatch:", e);
+                }
             }
-        }, 8000);
 
-        // Intercept user manual click execution
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
+            if (isRedirectMode) {
+                // --- SCENARIO A: Target matches origin referrer rules ---
+                heading.textContent = "Redirecting to the Arcade";
+                subHeading.textContent = "Taking you back smoothly...";
+                progressBar.classList.add('progress-active');
+                floatingModule.classList.remove('hidden');
+
+                setTimeout(() => { triggerFadeExit(destination); }, 5000);
+                setTimeout(() => { 
+                    if(fallbackBtn) {
+                        fallbackBtn.classList.remove('hidden');
+                        // Preload document text tree 1s before manual activation threshold limit
+                        preloadTargetDocument(destination);
+                    }
+                }, 7000);
+
+                setTimeout(() => {
+                    if(fallbackBtn) fallbackBtn.classList.remove('hidden');
+                }, 8000);
+
+            } else {
+                // --- SCENARIO B: External Landing visit path -> Display Default Projects list instantly ---
+                heading.textContent = "My Projects";
+                subHeading.textContent = "Welcome! Explore my featured creations below.";
+                progressContainer.classList.add('hidden');
+                inlineProjects.classList.remove('hidden');
+            }
+
+            // Click intercept rule to clean page and strip referrers to land gracefully onto defaults
+            document.getElementById('floating-toggle-projects').addEventListener('click', function(e) {
                 e.preventDefault();
-                leavePage(destination);
+                // Rewrites page location reference directly to scrub standard document.referrer chains
+                window.location.replace(window.location.origin + window.location.pathname);
             });
+
+            if(fallbackBtn) {
+                fallbackBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    triggerFadeExit(destination);
+                });
+            }
         });
+
+        window.addEventListener('load', () => { NProgress.done(); });
     </script>
 </body>
 </html>
